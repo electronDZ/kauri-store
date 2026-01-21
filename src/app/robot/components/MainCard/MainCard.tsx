@@ -10,6 +10,7 @@ import { EntertainmentGamesView } from "./EntertainmentGamesView"
 import { ProductsExplorationView } from "./ProductsExplorationView"
 import { ProductDetailView } from "./ProductDetailView"
 import { DefaultCardView } from "./DefaultCardView"
+import { OurStoryView } from "./OurStoryView"
 
 export function MainCard ({
   hero,
@@ -52,6 +53,7 @@ export function MainCard ({
   const isProducts = hero === "EXPLORE PRODUCTS"
   const isFeatured = hero === "FEATURED"
   const isStyleMatch = hero === "STYLE MATCH"
+  const isOurStory = hero === "OUR STORY"
   const isSaved = (id: number) => savedProductIds.includes(id)
 
   const filteredProducts = SAMPLE_PRODUCTS.filter(
@@ -190,6 +192,8 @@ export function MainCard ({
               imageGradient={imageGradient}
               onClose={() => setOpen(false)}
             />
+          ) : isOurStory ? (
+            <OurStoryView onBack={() => setOpen(false)} />
           ) : (
             <DefaultCardView
               hero={hero}
