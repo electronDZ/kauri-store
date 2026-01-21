@@ -1,0 +1,44 @@
+"use client";
+
+import { User, Shield, Power } from "lucide-react";
+import { Switch } from "@/components/ui/switch"; // Assuming we might need a switch, but I'll implement a simple one or use standard HTML input if ui/switch isn't available. Checking package.json... radix-ui/react-switch is available.
+
+interface StaffMember {
+    id: string;
+    name: string;
+    role: "Store Manager" | "Sales Assistant";
+    isActive: boolean;
+}
+
+interface StaffListItemProps {
+    member: StaffMember;
+    onToggle: (id: string, currentState: boolean) => void;
+}
+
+export function StaffListItem({ member, onToggle }: StaffListItemProps) {
+    return (
+        <div className="flex items-center justify-between p-4 bg-card rounded-lg border border-border hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-full ${member.role === "Store Manager" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                    {member.role === "Store Manager" ? <Shield className="w-5 h-5" /> : <User className="w-5 h-5" />}
+                </div>
+                <div>
+                    <div className="font-medium text-foreground">{member.name}</div>
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide">{member.role}</div>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+                <span className={`text-xs font-medium uppercase tracking-wide ${member.isActive ? "text-kauri-safe" : "text-muted-foreground"}`}>
+                    {member.isActive ? "Active" : "Inactive"}
+                </span>
+                <button
+                    onClick={() => onToggle(member.id, member.isActive)}
+                    className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${member.isActive ? "bg-kauri-safe" : "bg-input"}`}
+                >
+                    <span className={`w-4 h-4 rounded-full bg-white shadow-sm absolute transition-transform ${member.isActive ? "translate-x-7" : "translate-x-1"}`} />
+                </button>
+            </div>
+        </div>
+    );
+}
