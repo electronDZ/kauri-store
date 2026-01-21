@@ -11,7 +11,7 @@ export default function LiveAlerts() {
         <div className="p-6 space-y-6 min-h-screen pb-24">
             <header className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold font-heading text-foreground">Live Alerts</h1>
+                    <h1 className="text-2xl! font-bold font-heading text-foreground">Live Alerts</h1>
                     <p className="text-sm text-muted-foreground">Secret Audit Findings</p>
                 </div>
                 <div className="flex items-center gap-4">

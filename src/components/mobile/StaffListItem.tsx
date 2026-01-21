@@ -34,9 +34,9 @@ export function StaffListItem({ member, onToggle }: StaffListItemProps) {
                 </span>
                 <button
                     onClick={() => onToggle(member.id, member.isActive)}
-                    className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${member.isActive ? "bg-kauri-safe" : "bg-input"}`}
+                    className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${member.isActive ? "bg-[var(--kauri-safe)]" : "bg-input"}`}
                 >
-                    <span className={`w-4 h-4 rounded-full bg-white shadow-sm absolute transition-transform ${member.isActive ? "translate-x-7" : "translate-x-1"}`} />
+                    <span className={`w-4 h-4 rounded-full bg-white border-2 ${member.isActive ? "border-white/80 shadow-[0_2px_6px_rgba(0,0,0,0.25)]" : "border-border/60 shadow-md"} absolute transition-transform ${member.isActive ? "translate-x-7" : "translate-x-1"}`} />
                 </button>
             </div>
         </div>

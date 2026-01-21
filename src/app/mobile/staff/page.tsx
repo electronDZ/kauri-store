@@ -52,7 +52,7 @@ export default function StaffAccess() {
         <div className="p-6 space-y-6 min-h-screen pb-24">
             <header className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold font-heading text-foreground">Staff Access</h1>
+                    <h1 className="text-2xl! font-bold font-heading text-foreground">Staff Access</h1>
                     <p className="text-sm text-muted-foreground">Manage Face ID Credentials</p>
                 </div>
                 <button
@@ -134,9 +134,9 @@ export default function StaffAccess() {
             ) : (
                 <div className="space-y-4 animate-in slide-in-from-left duration-300">
                     <div className="pb-2 border-b border-border">
-                        <h2 className="text-xs font-heading font-semibold text-muted-foreground uppercase tracking-wider">
+                        <p className="text-[13px]! font-heading font-semibold text-muted-foreground uppercase">
                             Authorized Personnel
-                        </h2>
+                        </p>
                     </div>
                     <div className="space-y-2">
                         {staffList.map((member) => (

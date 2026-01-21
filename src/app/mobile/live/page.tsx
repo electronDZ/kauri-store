@@ -38,7 +38,7 @@ export default function RobotMap() {
                     <Bot className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold font-heading text-foreground">Live</h1>
+                    <h1 className="text-2xl! font-bold font-heading text-foreground">Live</h1>
                     <p className="text-sm text-muted-foreground">Store Monitor & Control</p>
                 </div>
             </header>

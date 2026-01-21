@@ -15,7 +15,7 @@ export default function MobileDashboard() {
 
       {/* Header */}
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold font-heading text-foreground">Store Health Monitor</h1>
+        <h1 className="text-4xl! font-bold font-heading text-foreground">Store Health Monitor</h1>
         <p className="text-sm text-muted-foreground">Real-time store analytics</p>
       </header>
 
@@ -46,7 +46,7 @@ export default function MobileDashboard() {
 
       {/* Robot Status Section */}
       <div className="bg-card border border-border rounded-lg p-4 flex items-center justify-between shadow-sm">
-        <h3 className="text-sm font-medium text-foreground uppercase tracking-wide">Robot Status</h3>
+        <h3 className="text-sm! font-medium text-foreground uppercase tracking-wide">Robot Status</h3>
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${robotStatus === "assistant" ? "bg-amber-500" : "bg-kauri-sage-dark"}`}></span>
@@ -62,7 +62,7 @@ export default function MobileDashboard() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="text-[8px] font-semibold text-foreground uppercase tracking-wider">Live Traffic Feed</h2>
+            <h2 className="text-[12px]! font-semibold text-foreground uppercase tracking-wider">Live Traffic Feed</h2>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-kauri-alert animate-pulse"></span>
               <span className="text-[8px] font-bold text-kauri-alert uppercase tracking-wider">Live</span>
