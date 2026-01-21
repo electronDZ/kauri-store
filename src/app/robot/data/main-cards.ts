@@ -1,0 +1,46 @@
+export const MAIN_CARDS = [
+  {
+    hero: "EXPLORE PRODUCTS",
+    description: "Discover our sustainable collection",
+    gridClass: "md:row-span-2",
+    imageGradient: "from-black/70 to-black/30",
+    isCarousel: false,
+    image: "/images/robot-screen/main-screen/COLLAGE_5_FOTO_ORIZZONTALI_HP_8.webp",
+  },
+  {
+    hero: "OUR STORY",
+    description: "Eco‑friendly values and how we care for the planet",
+    gridClass: "",
+    imageGradient: "from-gray-900/70 to-gray-900/30",
+    isCarousel: false,
+    image: "/images/robot-screen/main-screen/our-mission.jpg",
+  },
+  {
+    hero: "STYLE MATCH",
+    description: "Scan your skin tone and get personalized outfit recommendations",
+    gridClass: "",
+    imageGradient: "from-black/70 to-black/30",
+    isCarousel: false,
+    image: "/images/robot-screen/main-screen/cam-detection.avif",
+  },
+  {
+    hero: "KIDS ENTERTAINMENT",
+    description: "Fun activities and content for the little ones",
+    gridClass: "",
+    imageGradient: "from-gray-900/70 to-gray-900/30",
+    isCarousel: false,
+    image: "/images/robot-screen/main-screen/games.avif",
+  },
+  {
+    hero: "FEATURED",
+    description: "Discover our latest collections and special offers",
+    gridClass: "",
+    imageGradient: "from-black/70 to-black/30",
+    isCarousel: true,
+    carouselImages: [
+      "/images/robot-screen/main-screen/home_becks_cognac_apple_front.webp",
+      "/images/robot-screen/main-screen/BANNER_MENU_RETTANGOLARI.webp",
+      "/images/robot-screen/main-screen/8_671bed23-b8c4-4010-959a-dd52514ac068.webp",
+    ],
+  },
+] as const
