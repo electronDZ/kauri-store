@@ -50,7 +50,7 @@ export default function RobotPage () {
     : null
 
   return (
-    <div className="min-h-screen w-full bg-background font-sans">
+    <div className="robot min-h-screen w-full bg-background font-sans">
       <header className="flex items-center justify-between border-b border-border bg-background px-[var(--kauri-container)] py-4">
         <Image
           src="/images/KAURI_logo.png"

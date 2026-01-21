@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import L from "leaflet"
-import "leaflet/dist/leaflet.css"
 import { motion, AnimatePresence } from "framer-motion"
 import { productJourney, type JourneyStep } from "../../../data/productJourney"
 import { CloseIcon } from "../../icons"
@@ -19,23 +17,16 @@ const STEP_ICONS: Record<JourneyStep["type"], string> = {
   DELIVERY: "📦"
 }
 
-// Fix for default Leaflet marker icons
-delete (L.Icon.Default.prototype as any)._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png"
-})
-
 export function ProductJourneyModal ({ onClose }: ProductJourneyModalProps) {
   const [activeStepId, setActiveStepId] = useState<string | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set())
   const mapContainer = useRef<HTMLDivElement>(null)
-  const map = useRef<L.Map | null>(null)
-  const markersRef = useRef<L.Marker[]>([])
-  const polylineRef = useRef<L.Polyline | null>(null)
+  const map = useRef<any>(null)
+  const markersRef = useRef<any[]>([])
+  const polylineRef = useRef<any>(null)
   const playTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([])
+  const leafletLoaded = useRef(false)
 
   const flyToLocation = (lat: number, lng: number) => {
     if (!map.current) return
@@ -46,59 +37,78 @@ export function ProductJourneyModal ({ onClose }: ProductJourneyModalProps) {
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || map.current) return
+    if (!mapContainer.current || map.current || typeof window === "undefined") return
 
-    map.current = L.map(mapContainer.current, {
-      center: [22.2587, 71.1924], // First step location [lat, lng]
-      zoom: 2.5
-    })
+    const initMap = async () => {
+      // Dynamically import Leaflet only on client side
+      const L = await import("leaflet")
+      await import("leaflet/dist/leaflet.css")
 
-    // Add OpenStreetMap tiles
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19
-    }).addTo(map.current)
-
-    // Add zoom controls
-    L.control.zoom({
-      position: "topright"
-    }).addTo(map.current)
-
-    // Create custom icon function
-    const createCustomIcon = (stepType: JourneyStep["type"], isActive: boolean) => {
-      return L.divIcon({
-        className: "journey-marker",
-        html: `<div class="marker-pin ${isActive ? "active" : ""}">${STEP_ICONS[stepType]}</div>`,
-        iconSize: [48, 48],
-        iconAnchor: [24, 24]
+      // Fix for default Leaflet marker icons
+      delete (L.Icon.Default.prototype as any)._getIconUrl
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+        iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png"
       })
+
+      if (!mapContainer.current) return
+
+      map.current = L.map(mapContainer.current, {
+        center: [22.2587, 71.1924], // First step location [lat, lng]
+        zoom: 2.5
+      })
+
+      // Add OpenStreetMap tiles
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+      }).addTo(map.current)
+
+      // Add zoom controls
+      L.control.zoom({
+        position: "topright"
+      }).addTo(map.current)
+
+      // Create custom icon function
+      const createCustomIcon = (stepType: JourneyStep["type"], isActive: boolean) => {
+        return L.divIcon({
+          className: "journey-marker",
+          html: `<div class="marker-pin ${isActive ? "active" : ""}">${STEP_ICONS[stepType]}</div>`,
+          iconSize: [48, 48],
+          iconAnchor: [24, 24]
+        })
+      }
+
+      // Add markers for all steps
+      productJourney.steps.forEach((step, index) => {
+        const isFirst = index === 0
+        const icon = createCustomIcon(step.type, isFirst)
+        
+        const marker = L.marker([step.location.lat, step.location.lng], { icon })
+          .addTo(map.current!)
+          .on("click", () => {
+            setActiveStepId(step.id)
+            flyToLocation(step.location.lat, step.location.lng)
+          })
+
+        markersRef.current.push(marker)
+      })
+
+      // Draw path between steps
+      const coordinates = productJourney.steps.map(step => [step.location.lat, step.location.lng] as [number, number])
+      polylineRef.current = L.polyline(coordinates, {
+        color: "#3b82f6",
+        weight: 2,
+        opacity: 0.6
+      }).addTo(map.current!)
+
+      // Set first step as active
+      setActiveStepId(productJourney.steps[0].id)
+      leafletLoaded.current = true
     }
 
-    // Add markers for all steps
-    productJourney.steps.forEach((step, index) => {
-      const isFirst = index === 0
-      const icon = createCustomIcon(step.type, isFirst)
-      
-      const marker = L.marker([step.location.lat, step.location.lng], { icon })
-        .addTo(map.current!)
-        .on("click", () => {
-          setActiveStepId(step.id)
-          flyToLocation(step.location.lat, step.location.lng)
-        })
-
-      markersRef.current.push(marker)
-    })
-
-    // Draw path between steps
-    const coordinates = productJourney.steps.map(step => [step.location.lat, step.location.lng] as [number, number])
-    polylineRef.current = L.polyline(coordinates, {
-      color: "#3b82f6",
-      weight: 2,
-      opacity: 0.6
-    }).addTo(map.current!)
-
-    // Set first step as active
-    setActiveStepId(productJourney.steps[0].id)
+    initMap()
 
     return () => {
       markersRef.current.forEach(marker => marker.remove())
@@ -116,22 +126,28 @@ export function ProductJourneyModal ({ onClose }: ProductJourneyModalProps) {
 
   // Update active marker styling
   useEffect(() => {
-    if (!map.current) return
+    if (!map.current || !leafletLoaded.current || typeof window === "undefined") return
 
-    markersRef.current.forEach((marker, index) => {
-      const step = productJourney.steps[index]
-      if (!step) return
+    const updateMarkers = async () => {
+      const L = await import("leaflet")
       
-      const isActive = step.id === activeStepId
-      const icon = L.divIcon({
-        className: "journey-marker",
-        html: `<div class="marker-pin ${isActive ? "active" : ""}">${STEP_ICONS[step.type]}</div>`,
-        iconSize: [48, 48],
-        iconAnchor: [24, 24]
+      markersRef.current.forEach((marker, index) => {
+        const step = productJourney.steps[index]
+        if (!step) return
+        
+        const isActive = step.id === activeStepId
+        const icon = L.divIcon({
+          className: "journey-marker",
+          html: `<div class="marker-pin ${isActive ? "active" : ""}">${STEP_ICONS[step.type]}</div>`,
+          iconSize: [48, 48],
+          iconAnchor: [24, 24]
+        })
+        
+        marker.setIcon(icon)
       })
-      
-      marker.setIcon(icon)
-    })
+    }
+
+    updateMarkers()
   }, [activeStepId])
 
   const handleStepClick = (step: JourneyStep) => {
