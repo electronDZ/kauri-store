@@ -191,6 +191,8 @@ export function MainCard ({
               image={image ?? "/images/robot-screen/main-screen/cam-detection.avif"}
               imageGradient={imageGradient}
               onClose={() => setOpen(false)}
+              savedProductIds={savedProductIds}
+              onToggleSaved={onToggleSaved}
             />
           ) : isOurStory ? (
             <OurStoryView onBack={() => setOpen(false)} />

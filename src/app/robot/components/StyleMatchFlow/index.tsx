@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react"
 import Image from "next/image"
 import { Camera } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { BackArrowIcon } from "../icons"
+import { BackArrowIcon, HeartFilledIcon, HeartIcon } from "../icons"
 import {
   UNDERTONES,
   COLOR_PREFS,
@@ -25,14 +25,18 @@ type Product = {
 type Step = "camera" | "scanning" | "processing" | "results"
 type Undertone = "warm" | "cool" | "neutral"
 
-export function StyleMatchFlow ({
+export function StyleMatchFlow({
   image,
   imageGradient,
   onClose,
+  savedProductIds,
+  onToggleSaved,
 }: {
   image: string
   imageGradient: string
   onClose: () => void
+  savedProductIds?: number[]
+  onToggleSaved?: (id: number) => void
 }) {
   const [step, setStep] = useState<Step>("camera")
   const [undertone, setUndertone] = useState<Undertone>("warm")
@@ -306,10 +310,10 @@ export function StyleMatchFlow ({
               {outfit.items.map((item) => {
                 const product = hotspotProducts[item.id]
                 if (!product) return null
-                
+
                 const isSelected = selectedItemId === item.id
                 const isDimmed = selectedItemId !== null && selectedItemId !== item.id
-                
+
                 return (
                   <div
                     key={item.id}
@@ -350,6 +354,28 @@ export function StyleMatchFlow ({
                         </p>
                       </div>
                     </button>
+                    {onToggleSaved && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onToggleSaved(product.id)
+                        }}
+                        className={cn(
+                          "absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-none border transition-colors",
+                          savedProductIds?.includes(product.id)
+                            ? "border-transparent bg-background/90 text-kauri-red hover:bg-background"
+                            : "border-border bg-background/90 text-foreground/70 hover:bg-background hover:text-foreground"
+                        )}
+                        aria-label={savedProductIds?.includes(product.id) ? "Remove from saved" : "Save for later"}
+                      >
+                        {savedProductIds?.includes(product.id) ? (
+                          <HeartFilledIcon className="size-5" />
+                        ) : (
+                          <HeartIcon className="size-5" />
+                        )}
+                      </button>
+                    )}
                   </div>
                 )
               })}
