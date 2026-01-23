@@ -1,4 +1,5 @@
 import { User, Shield, Power, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { Switch } from "@/components/ui/switch"; // Assuming we might need a switch, but I'll implement a simple one or use standard HTML input if ui/switch isn't available. Checking package.json... radix-ui/react-switch is available.
 
 interface StaffMember {
@@ -11,10 +12,35 @@ interface StaffMember {
 interface StaffListItemProps {
     member: StaffMember;
     onToggle: (id: string, currentState: boolean) => void;
-    onRemove: (id: string) => void;
+    onRemove: (id: string, name: string) => void;
 }
 
 export function StaffListItem({ member, onToggle, onRemove }: StaffListItemProps) {
+    const [showConfirm, setShowConfirm] = useState(false);
+
+    if (showConfirm) {
+        return (
+            <div className="flex flex-col p-4 bg-destructive/5 rounded-lg border border-destructive/20 animate-in slide-in-from-right duration-200">
+                <div className="text-sm font-medium text-foreground mb-3 text-center">
+                    Remove <span className="font-bold">{member.name}</span>?
+                </div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowConfirm(false)}
+                        className="flex-1 py-2 text-xs font-bold uppercase tracking-wide rounded bg-background border border-border hover:bg-muted transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={() => onRemove(member.id, member.name)}
+                        className="flex-1 py-2 text-xs font-bold uppercase tracking-wide rounded bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm"
+                    >
+                        Proceed
+                    </button>
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="flex items-center justify-between p-4 bg-card rounded-lg border border-border hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3">
@@ -38,10 +64,10 @@ export function StaffListItem({ member, onToggle, onRemove }: StaffListItemProps
                     <span className={`w-4 h-4 rounded-full bg-white border-2 ${member.isActive ? "border-white/80 shadow-[0_2px_6px_rgba(0,0,0,0.25)]" : "border-border/60 shadow-md"} absolute transition-transform ${member.isActive ? "translate-x-7" : "translate-x-1"}`} />
                 </button>
                 <button
-                    onClick={() => onRemove(member.id)}
-                    className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                    onClick={() => setShowConfirm(true)}
+                    className="p-2 text-muted-foreground hover:text-destructive transition-colors relative group"
                 >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="w-5 h-5 transition-transform group-hover:scale-110" />
                 </button>
             </div>
         </div>

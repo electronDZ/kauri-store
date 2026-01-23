@@ -3,11 +3,14 @@
 import { useMobile } from "@/app/mobile/context/MobileContext";
 import { Maximize2, Video, Bot } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RobotMap() {
     const { robotStatus, customerCount, toggleCustomerSimulation, triggerMisplacedItem, addCustomers } = useMobile();
     const [isLive, setIsLive] = useState(false);
+
     const [patrolIndex, setPatrolIndex] = useState(0);
+    const router = useRouter(); // Import useRouter
 
     // Patrol coordinates for the robot (using percentages to be responsive and safe)
     // New Path: Entrance -> Left Aisle -> Sneaker Wall -> Right Aisle -> Cashier Check -> Entrance
@@ -242,15 +245,17 @@ export default function RobotMap() {
                             <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-b from-transparent via-white/5 to-transparent h-[20%] w-full animate-[scan_3s_linear_infinite] opacity-30"></div>
 
                             <video
-                                src="/assets/videos/project-feed.mp4"
+                                src="/project-feed.mp4"
                                 className="w-full h-full object-cover opacity-80"
                                 autoPlay
                                 muted
                                 playsInline
                                 onEnded={() => {
-                                    triggerMisplacedItem();
-                                    addCustomers(2);
-                                    // Optionally close feed or show a notification toast
+                                    // Sequence: Detect Human -> Log Alert -> Redirect to Dashboard
+                                    triggerMisplacedItem(); // Keep alert as part of demo flow
+                                    addCustomers(2); // Set count to 2
+                                    setIsLive(false); // Close modal
+                                    router.push("/mobile"); // Smooth transition to dashboard to see changes
                                 }}
                             >
                             </video>

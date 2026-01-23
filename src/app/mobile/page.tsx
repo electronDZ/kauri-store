@@ -45,16 +45,26 @@ export default function MobileDashboard() {
       </div>
 
       {/* Robot Status Section */}
-      <div className="bg-card border border-border rounded-lg p-4 flex items-center justify-between shadow-sm">
-        <h3 className="text-sm! font-medium text-foreground uppercase tracking-wide">Robot Status</h3>
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${robotStatus === "assistant" ? "bg-amber-500" : "bg-kauri-sage-dark"}`}></span>
-            <span className={`relative inline-flex rounded-full h-2 w-2 ${robotStatus === "assistant" ? "bg-amber-500" : "bg-kauri-sage-dark"}`}></span>
-          </span>
-          <span className="text-xs font-bold text-foreground">
-            {robotStatus === "assistant" ? "Assisting Customer" : "Patrol Mode"}
-          </span>
+      <div className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm! font-medium text-foreground uppercase tracking-wide">Robot Status</h3>
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${robotStatus === "assistant" ? "bg-amber-500" : "bg-kauri-sage-dark"}`}></span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${robotStatus === "assistant" ? "bg-amber-500" : "bg-kauri-sage-dark"}`}></span>
+            </span>
+            <span className="text-xs font-bold text-foreground">
+              {robotStatus === "assistant" ? "Assisting Customer" : "Patrol Mode"}
+            </span>
+          </div>
+        </div>
+
+        {/* Battery Indicator */}
+        <div className="flex items-center gap-3 border-t border-border pt-3">
+          <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
+            <div className="bg-primary h-full rounded-full w-[86%]"></div>
+          </div>
+          <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap">BATTERY: 86%</span>
         </div>
       </div>
 
@@ -84,38 +94,39 @@ export default function MobileDashboard() {
             <text x="10" y="95" className="text-[10px] fill-muted-foreground font-mono">9AM</text>
             <text x="100" y="95" className="text-[10px] fill-muted-foreground font-mono">1PM</text>
             <text x="200" y="95" className="text-[10px] fill-muted-foreground font-mono">5PM</text>
-            <text x="280" y="95" className="text-[10px] fill-muted-foreground font-mono">NOW</text>
+            <text x="260" y="95" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">NOW</text>
 
             {/* Curve: Activity during day (peaks) then dropping to near zero at end */}
-            <path d="M0,100 L0,80 C30,70 50,40 75,30 S 120,60 150,55 S 200,20 225,25 S 270,90 300,98 V100 H0 Z"
+            {/* Ending at 260 to leave room for "live" feel */}
+            <path d="M0,100 L0,80 C30,70 50,40 75,30 S 120,60 150,55 S 200,20 225,25 S 245,90 260,95 V100 H0 Z"
               fill="currentColor" fillOpacity="0.2" />
-            <path d="M0,80 C30,70 50,40 75,30 S 120,60 150,55 S 200,20 225,25 S 270,90 300,98"
+            <path d="M0,80 C30,70 50,40 75,30 S 120,60 150,55 S 200,20 225,25 S 245,90 260,95"
               fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
 
             {/* Current Status Indicator at the end of the line */}
-            <circle cx="300" cy="98" r="3" fill="currentColor" className="animate-pulse" />
+            <circle cx="260" cy="95" r="3" fill="currentColor" className="animate-pulse" />
 
             {/* People Count Indicators at different time points */}
             {/* 9AM - 8 people */}
-            <text x="10" y="75" className="text-[8px] fill-primary font-bold">👥 8</text>
+            <text x="2" y="75" className="text-[8px] fill-primary font-bold">👥 8</text>
 
             {/* ~11AM - 15 people (peak morning) */}
-            <text x="75" y="25" className="text-[8px] fill-primary font-bold">👥 15</text>
+            <text x="67" y="25" className="text-[8px] fill-primary font-bold">👥 15</text>
 
             {/* 1PM - 12 people */}
-            <text x="100" y="50" className="text-[8px] fill-primary font-bold">👥 12</text>
+            <text x="92" y="50" className="text-[8px] fill-primary font-bold">👥 12</text>
 
             {/* ~3PM - 18 people (peak afternoon) */}
-            <text x="150" y="50" className="text-[8px] fill-primary font-bold">👥 18</text>
+            <text x="142" y="50" className="text-[8px] fill-primary font-bold">👥 18</text>
 
             {/* 5PM - 20 people (highest peak) */}
-            <text x="200" y="15" className="text-[8px] fill-primary font-bold">👥 20</text>
+            <text x="192" y="15" className="text-[8px] fill-primary font-bold">👥 20</text>
 
             {/* ~6:30PM - 5 people */}
-            <text x="225" y="20" className="text-[8px] fill-primary font-bold">👥 5</text>
+            <text x="217" y="20" className="text-[8px] fill-primary font-bold">👥 5</text>
 
-            {/* NOW - 2 people */}
-            <text x="270" y="85" className="text-[8px] fill-primary font-bold">👥 2</text>
+            {/* NOW - Dynamic */}
+            <text x="260" y="85" textAnchor="middle" className="text-[8px] fill-primary font-bold">👥 {customerCount}</text>
           </svg>
 
         </div>
