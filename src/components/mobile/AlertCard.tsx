@@ -11,7 +11,7 @@ interface AlertCardProps {
 }
 
 export function AlertCard({ id, type, itemName, detail, message, actionLabel, onResolve }: AlertCardProps) {
-    const isHighPriority = type === "theft" || type === "missing" || type === "warning";
+    const isHighPriority = type === "theft" || type === "missing";
 
     const styles = isHighPriority
         ? {
