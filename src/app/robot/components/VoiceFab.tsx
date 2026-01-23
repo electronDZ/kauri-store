@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Lottie from "lottie-react"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 
-export function VoiceFab () {
+export function VoiceFab() {
   const [aiAnimation, setAiAnimation] = useState<object | null>(null)
 
   useEffect(() => {
@@ -35,17 +35,17 @@ export function VoiceFab () {
             </div>
           )}
           <span className="font-heading text-[1.4rem] font-bold uppercase tracking-widest text-foreground">
-            AI VOICE
+            TALK WITH KAURIO
           </span>
         </button>
       </TooltipTrigger>
-      <TooltipContent 
-        side="left" 
+      <TooltipContent
+        side="left"
         sideOffset={12}
         className="text-base px-4 py-3 font-sans"
       >
         Coming soon
       </TooltipContent>
-    </Tooltip>
+    </Tooltip >
   )
 }

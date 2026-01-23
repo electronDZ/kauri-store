@@ -1,105 +1,95 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Scan, ShieldCheck, Lock, UserCheck } from "lucide-react";
+import { Lock, LogIn, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
-export default function LoginPage() {
+export default function MobileLoginPage() {
     const router = useRouter();
-    const [scanState, setScanState] = useState<"idle" | "scanning" | "success">("idle");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
-    useEffect(() => {
-        // 1. Initial Delay
-        const initTimer = setTimeout(() => {
-            setScanState("scanning");
-        }, 1000);
-
-        // 2. Scan Duration (3s)
-        const scanTimer = setTimeout(() => {
-            setScanState("success");
-        }, 4000);
-
-        // 3. Redirect (1.5s after success)
-        const redirectTimer = setTimeout(() => {
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Simple mock authentication for prototype
+        if (password === "1234") {
             router.push("/mobile");
-        }, 5500);
-
-        return () => {
-            clearTimeout(initTimer);
-            clearTimeout(scanTimer);
-            clearTimeout(redirectTimer);
-        };
-    }, [router]);
+        } else {
+            setError("Invalid password");
+            setTimeout(() => setError(""), 3000);
+        }
+    };
 
     return (
-        <div className="h-screen w-full bg-black text-white flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white flex flex-col items-center justify-center p-6">
+            {/* Background decoration */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-kauri-green/5 via-transparent to-transparent"></div>
 
-            {/* Background Ambience */}
-            <div className="absolute inset-0 bg-gradient-to-b from-kauri-green/5 to-transparent pointer-events-none"></div>
-
-            {/* Header */}
-            <div className="absolute top-12 w-full text-center space-y-2 z-10">
-                <h1 className="text-xl font-bold font-heading uppercase tracking-widest text-white/90">
-                    Kauri Store System
-                </h1>
-                <div className="flex items-center justify-center gap-2">
-                    <Lock className="w-3 h-3 text-white/50" />
-                    <p className="text-xs text-white/50 font-mono tracking-wide">SECURE ACCESS REQ.</p>
+            <div className="w-full max-w-md space-y-8 relative z-10">
+                {/* Logo */}
+                <div className="flex justify-center mb-8">
+                    <Image
+                        src="/images/KAURI_logo.png"
+                        alt="KAURI"
+                        width={180}
+                        height={54}
+                        className="h-14 w-auto object-contain"
+                        priority
+                    />
                 </div>
-            </div>
 
-            {/* Scanner Visuals */}
-            <div className="relative z-10">
-                <div className="relative w-64 h-80 rounded-2xl border-2 border-white/20 overflow-hidden bg-white/5 backdrop-blur-sm flex items-center justify-center shadow-2xl">
+                {/* Header */}
+                <div className="text-center space-y-3">
+                    <div className="inline-flex items-center justify-center gap-2 mb-2">
+                        <ShieldCheck className="w-6 h-6 text-kauri-green" />
+                    </div>
+                    <h1 className="text-3xl font-bold font-heading uppercase tracking-wider">Store Manager</h1>
+                    <p className="text-white/60 text-base">Secure Mobile Access</p>
+                </div>
 
-                    {/* Corner Brackets */}
-                    <div className={`absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 transition-all duration-500 rounded-tl-lg ${scanState === "success" ? "border-kauri-green" : "border-white"}`}></div>
-                    <div className={`absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 transition-all duration-500 rounded-tr-lg ${scanState === "success" ? "border-kauri-green" : "border-white"}`}></div>
-                    <div className={`absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 transition-all duration-500 rounded-bl-lg ${scanState === "success" ? "border-kauri-green" : "border-white"}`}></div>
-                    <div className={`absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 transition-all duration-500 rounded-br-lg ${scanState === "success" ? "border-kauri-green" : "border-white"}`}></div>
-
-                    {/* Content */}
-                    {scanState === "success" ? (
-                        <div className="flex flex-col items-center gap-4 animate-in zoom-in duration-500">
-                            <div className="w-20 h-20 rounded-full bg-kauri-green/20 flex items-center justify-center border border-kauri-green">
-                                <UserCheck className="w-10 h-10 text-kauri-green" />
+                {/* Login Form */}
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-md shadow-2xl">
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        <div className="space-y-3">
+                            <label className="text-sm font-medium uppercase tracking-wide text-white/80">Access Code</label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
+                                <Input
+                                    type="password"
+                                    placeholder="Enter your password"
+                                    className="bg-black/50 border-white/20 pl-12 pr-4 py-6 text-white placeholder:text-white/30 text-base rounded-xl focus:border-kauri-green focus:ring-2 focus:ring-kauri-green/20 transition-all"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    autoFocus
+                                />
                             </div>
-                            <span className="text-kauri-green font-bold text-lg tracking-widest uppercase">Authorized</span>
                         </div>
-                    ) : (
-                        <div className="w-full h-full relative">
-                            {/* Simulated Face Outline */}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-30">
-                                <Scan className="w-32 h-32 text-white animate-pulse" />
+
+                        {error && (
+                            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                                <p className="text-red-400 text-sm text-center font-medium">{error}</p>
                             </div>
+                        )}
 
-                            {/* Scan Line */}
-                            {scanState === "scanning" && (
-                                <div className="absolute left-0 right-0 h-0.5 bg-kauri-green shadow-[0_0_15px_rgba(34,197,94,0.8)] animate-[scan_2s_ease-in-out_infinite]"></div>
-                            )}
-                        </div>
-                    )}
+                        <Button
+                            type="submit"
+                            className="w-full bg-kauri-green text-black hover:bg-kauri-green/90 font-bold py-6 text-base rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                            <LogIn className="w-5 h-5 mr-2" />
+                            Access Dashboard
+                        </Button>
+                    </form>
                 </div>
 
-                {/* Status Text */}
-                <div className="absolute -bottom-24 left-0 right-0 text-center space-y-1 h-12">
-                    <p className="text-sm font-mono text-white/70 uppercase tracking-widest">
-                        {scanState === "idle" && "Initializing Camera..."}
-                        {scanState === "scanning" && "Scanning Face ID..."}
-                        {scanState === "success" && "Identity Verified"}
-                    </p>
-                    {scanState === "scanning" && (
-                        <p className="text-[10px] text-white/30 animate-pulse">Please hold still</p>
-                    )}
+                {/* Footer */}
+                <div className="text-center space-y-2">
+                    <p className="text-xs text-white/40 uppercase tracking-widest">Restricted Access</p>
+                    <p className="text-[10px] text-white/30">Kauri Store • Manager Portal</p>
                 </div>
             </div>
-
-            {/* Footer */}
-            <div className="absolute bottom-12 text-center">
-                <ShieldCheck className="w-6 h-6 text-white/20 mx-auto mb-2" />
-                <p className="text-[10px] text-white/30 uppercase tracking-[0.2em]">Authorized Personnel Only</p>
-            </div>
-
         </div>
     );
 }

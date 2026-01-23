@@ -362,7 +362,7 @@ export function StyleMatchFlow({
                           onToggleSaved(product.id)
                         }}
                         className={cn(
-                          "absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-none border transition-colors",
+                          "absolute right-2 top-2 z-10 flex h-20 w-20 items-center justify-center rounded-none border transition-colors",
                           savedProductIds?.includes(product.id)
                             ? "border-transparent bg-background/90 text-kauri-red hover:bg-background"
                             : "border-border bg-background/90 text-foreground/70 hover:bg-background hover:text-foreground"
@@ -370,9 +370,9 @@ export function StyleMatchFlow({
                         aria-label={savedProductIds?.includes(product.id) ? "Remove from saved" : "Save for later"}
                       >
                         {savedProductIds?.includes(product.id) ? (
-                          <HeartFilledIcon className="size-5" />
+                          <HeartFilledIcon className="size-10" />
                         ) : (
-                          <HeartIcon className="size-5" />
+                          <HeartIcon className="size-10" />
                         )}
                       </button>
                     )}
@@ -391,9 +391,18 @@ export function StyleMatchFlow({
               setVisibleDots(new Set())
               setImageLoaded(false)
             }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-none border-2 border-foreground bg-background px-8 py-5 font-sans text-[1.8rem] font-medium uppercase tracking-wide text-foreground transition-all hover:bg-foreground hover:text-primary-foreground active:scale-95"
+            className="flex flex-1 items-center justify-center gap-2 rounded-none border-0 bg-foreground px-8 py-5 font-sans text-[1.8rem] font-medium uppercase tracking-wide text-primary-foreground transition-all hover:bg-foreground/90 active:scale-95"
           >
-            Choose again
+            Scan Again
+          </button>
+          <button
+            onClick={() => {
+              // Placeholder for "More suggestions"
+              alert("Generating more suggestions...")
+            }}
+            className="flex flex-1 items-center justify-center gap-2 rounded-none border-0 bg-foreground px-8 py-5 font-sans text-[1.8rem] font-medium uppercase tracking-wide text-primary-foreground transition-all hover:bg-foreground/90 active:scale-95"
+          >
+            More Options
           </button>
           <button
             onClick={onClose}

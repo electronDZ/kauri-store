@@ -17,7 +17,7 @@ type Product = {
   category: string
 }
 
-export function ProductsExplorationView ({
+export function ProductsExplorationView({
   hero,
   description,
   selectedCategory,
@@ -77,7 +77,7 @@ export function ProductsExplorationView ({
   const savedProducts = SAMPLE_PRODUCTS.filter((p) => savedProductIds.includes(p.id))
   const displayProducts = showSavedView ? savedProducts : filteredProducts
 
-  function renderProductCard (product: Product) {
+  function renderProductCard(product: Product) {
     const saved = savedProductIds.includes(product.id)
     return (
       <div
@@ -117,14 +117,14 @@ export function ProductsExplorationView ({
             type="button"
             onClick={() => onToggleSaved(product.id)}
             className={cn(
-              "absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-none border transition-colors",
+              "absolute right-2 top-2 z-10 flex h-20 w-20 items-center justify-center rounded-none border transition-colors",
               saved
                 ? "border-transparent bg-background/90 text-kauri-red hover:bg-background"
                 : "border-border bg-background/90 text-foreground/70 hover:bg-background hover:text-foreground"
             )}
             aria-label={saved ? "Remove from saved" : "Save for later"}
           >
-            {saved ? <HeartFilledIcon className="size-5" /> : <HeartIcon className="size-5" />}
+            {saved ? <HeartFilledIcon className="size-10" /> : <HeartIcon className="size-10" />}
           </button>
         )}
       </div>

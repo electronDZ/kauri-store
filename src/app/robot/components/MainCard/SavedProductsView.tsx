@@ -13,7 +13,7 @@ type Product = {
   category: string
 }
 
-export function SavedProductsView ({
+export function SavedProductsView({
   savedProducts,
   onRemove,
   onSelectProduct,
@@ -75,10 +75,10 @@ export function SavedProductsView ({
                   <button
                     type="button"
                     onClick={() => onRemove(product.id)}
-                    className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-none border border-transparent bg-background/90 text-kauri-red transition-colors hover:bg-background"
+                    className="absolute right-2 top-2 z-10 flex h-20 w-20 items-center justify-center rounded-none border border-transparent bg-background/90 text-kauri-red transition-colors hover:bg-background"
                     aria-label="Remove from saved"
                   >
-                    <HeartFilledIcon className="size-5" />
+                    <HeartFilledIcon className="size-10" />
                   </button>
                 </div>
               ))}

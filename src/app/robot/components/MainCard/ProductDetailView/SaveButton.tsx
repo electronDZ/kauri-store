@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 import { HeartFilledIcon, HeartIcon } from "../../icons"
 
-export function SaveButton ({
+export function SaveButton({
   isSaved,
   onToggle,
 }: {
@@ -21,12 +21,12 @@ export function SaveButton ({
     >
       {isSaved ? (
         <>
-          <HeartFilledIcon className="size-8 shrink-0 text-kauri-red" />
+          <HeartFilledIcon className="size-10 shrink-0 text-kauri-red" />
           Saved
         </>
       ) : (
         <>
-          <HeartIcon className="size-8 shrink-0" />
+          <HeartIcon className="size-10 shrink-0" />
           Save for later
         </>
       )}
