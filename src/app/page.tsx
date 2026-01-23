@@ -1,89 +1,105 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { QRScanner } from "@/components/QRScanner"
-import { QrCode } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Scan, ShieldCheck, Lock, UserCheck } from "lucide-react";
 
-export default function Home() {
-  const router = useRouter()
-  const [qrScannerOpen, setQrScannerOpen] = useState(false)
+export default function LoginPage() {
+    const router = useRouter();
+    const [scanState, setScanState] = useState<"idle" | "scanning" | "success">("idle");
 
-  const handleScanSuccess = (decodedText: string) => {
-    // Extract product ID from URL or use the decoded text directly
-    // QR codes can contain URLs like /product/1 or just the product ID
-    let productId: string | null = null
+    useEffect(() => {
+        // 1. Initial Delay
+        const initTimer = setTimeout(() => {
+            setScanState("scanning");
+        }, 1000);
 
-    if (decodedText.includes("/product/")) {
-      productId = decodedText.split("/product/")[1]?.split("?")[0] ?? null
-    } else if (/^\d+$/.test(decodedText)) {
-      // If it's just a number, treat it as product ID
-      productId = decodedText
-    } else {
-      // Try to extract any number from the text
-      const match = decodedText.match(/\d+/)
-      productId = match?.[0] ?? null
-    }
+        // 2. Scan Duration (3s)
+        const scanTimer = setTimeout(() => {
+            setScanState("success");
+        }, 4000);
 
-    if (productId) {
-      setQrScannerOpen(false)
-      router.push(`/product/${productId}`)
-    } else {
-      alert("Invalid QR code. Please scan a product QR code.")
-    }
-  }
+        // 3. Redirect (1.5s after success)
+        const redirectTimer = setTimeout(() => {
+            router.push("/launcher");
+        }, 5500);
 
-  return (
-    <div className="flex min-h-screen flex-col bg-background font-sans text-foreground">
-      <header>
-        {/* Announcement bar: full width, dark */}
-        <div className="w-full bg-foreground text-primary-foreground">
-          <div className="flex min-h-16 items-center justify-center px-[var(--kauri-container)]">
-            <span className="font-sans text-[1.4rem] font-medium tracking-wide">
-              KAURI HCI — HIGH-FIDELITY PROTOTYPE
-            </span>
-          </div>
+        return () => {
+            clearTimeout(initTimer);
+            clearTimeout(scanTimer);
+            clearTimeout(redirectTimer);
+        };
+    }, [router]);
+
+    return (
+        <div className="h-screen w-full bg-black text-white flex flex-col items-center justify-center relative overflow-hidden">
+
+            {/* Background Ambience */}
+            <div className="absolute inset-0 bg-gradient-to-b from-kauri-green/5 to-transparent pointer-events-none"></div>
+
+            {/* Header */}
+            <div className="absolute top-12 w-full text-center space-y-2 z-10">
+                <h1 className="text-xl font-bold font-heading uppercase tracking-widest text-white/90">
+                    Kauri Store System
+                </h1>
+                <div className="flex items-center justify-center gap-2">
+                    <Lock className="w-3 h-3 text-white/50" />
+                    <p className="text-xs text-white/50 font-mono tracking-wide">SECURE ACCESS REQ.</p>
+                </div>
+            </div>
+
+            {/* Scanner Visuals */}
+            <div className="relative z-10">
+                <div className="relative w-64 h-80 rounded-2xl border-2 border-white/20 overflow-hidden bg-white/5 backdrop-blur-sm flex items-center justify-center shadow-2xl">
+
+                    {/* Corner Brackets */}
+                    <div className={`absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 transition-all duration-500 rounded-tl-lg ${scanState === "success" ? "border-kauri-green" : "border-white"}`}></div>
+                    <div className={`absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 transition-all duration-500 rounded-tr-lg ${scanState === "success" ? "border-kauri-green" : "border-white"}`}></div>
+                    <div className={`absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 transition-all duration-500 rounded-bl-lg ${scanState === "success" ? "border-kauri-green" : "border-white"}`}></div>
+                    <div className={`absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 transition-all duration-500 rounded-br-lg ${scanState === "success" ? "border-kauri-green" : "border-white"}`}></div>
+
+                    {/* Content */}
+                    {scanState === "success" ? (
+                        <div className="flex flex-col items-center gap-4 animate-in zoom-in duration-500">
+                            <div className="w-20 h-20 rounded-full bg-kauri-green/20 flex items-center justify-center border border-kauri-green">
+                                <UserCheck className="w-10 h-10 text-kauri-green" />
+                            </div>
+                            <span className="text-kauri-green font-bold text-lg tracking-widest uppercase">Authorized</span>
+                        </div>
+                    ) : (
+                        <div className="w-full h-full relative">
+                            {/* Simulated Face Outline */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-30">
+                                <Scan className="w-32 h-32 text-white animate-pulse" />
+                            </div>
+
+                            {/* Scan Line */}
+                            {scanState === "scanning" && (
+                                <div className="absolute left-0 right-0 h-0.5 bg-kauri-green shadow-[0_0_15px_rgba(34,197,94,0.8)] animate-[scan_2s_ease-in-out_infinite]"></div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Status Text */}
+                <div className="absolute -bottom-24 left-0 right-0 text-center space-y-1 h-12">
+                    <p className="text-sm font-mono text-white/70 uppercase tracking-widest">
+                        {scanState === "idle" && "Initializing Camera..."}
+                        {scanState === "scanning" && "Scanning Face ID..."}
+                        {scanState === "success" && "Identity Verified"}
+                    </p>
+                    {scanState === "scanning" && (
+                        <p className="text-[10px] text-white/30 animate-pulse">Please hold still</p>
+                    )}
+                </div>
+            </div>
+
+            {/* Footer */}
+            <div className="absolute bottom-12 text-center">
+                <ShieldCheck className="w-6 h-6 text-white/20 mx-auto mb-2" />
+                <p className="text-[10px] text-white/30 uppercase tracking-[0.2em]">Authorized Personnel Only</p>
+            </div>
+
         </div>
-        {/* Main nav: logo left */}
-        <nav className="flex w-full items-center justify-between border-b border-border bg-background px-[var(--kauri-container)] py-[1.6rem]">
-          <Link href="/" className="flex shrink-0" aria-label="KAURI home">
-            <Image
-              src="/images/KAURI_logo.png"
-              alt="KAURI"
-              width={160}
-              height={48}
-              className="h-[3.2rem] w-auto object-contain"
-            />
-          </Link>
-        </nav>
-      </header>
-
-      {/* Main: launcher links */}
-      <main className="flex flex-1 flex-col items-center justify-center px-[var(--kauri-container)] py-24">
-        <div className="flex w-full max-w-5xl flex-col items-center gap-16">
-          <section className="flex flex-col items-center gap-[1.6rem] text-center">
-            <h2 className="font-heading uppercase tracking-wide text-foreground">
-              Pick an experience
-            </h2>
-            <p className="max-w-md font-sans text-[1.6rem] leading-normal text-muted-foreground">
-              High-fidelity prototype. Choose Robot touch screen or Mobile app.
-            </p>
-          </section>
-
-          <div className="flex flex-col gap-[1.6rem] sm:flex-row sm:gap-8">
-            <Button asChild className="w-full uppercase tracking-wide sm:w-auto">
-              <Link href="/robot">Robot touch screen</Link>
-            </Button>
-            <Button asChild variant="outline" className="w-full uppercase tracking-wide sm:w-auto">
-              <Link href="/mobile/login">Mobile app</Link>
-            </Button>
-          </div>
-        </div>
-      </main>
-    </div>
-  )
+    );
 }
