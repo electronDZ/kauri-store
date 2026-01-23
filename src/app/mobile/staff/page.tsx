@@ -32,6 +32,10 @@ export default function StaffAccess() {
         );
     };
 
+    const handleRemove = (id: string) => {
+        setStaffList((prev) => prev.filter((member) => member.id !== id));
+    };
+
     const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
         if (!newStaffName) return;
@@ -140,7 +144,7 @@ export default function StaffAccess() {
                     </div>
                     <div className="space-y-2">
                         {staffList.map((member) => (
-                            <StaffListItem key={member.id} member={member} onToggle={handleToggle} />
+                            <StaffListItem key={member.id} member={member} onToggle={handleToggle} onRemove={handleRemove} />
                         ))}
                     </div>
                 </div>
