@@ -50,7 +50,23 @@ export default function RobotPage () {
     : null
 
   return (
-    <div className="robot min-h-screen w-full bg-background font-sans">
+    <div className="robot relative min-h-screen w-full bg-background font-sans">
+      {/* Simple line pattern background */}
+      <div 
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `
+            repeating-linear-gradient(
+              45deg,
+              transparent,
+              transparent 2px,
+              currentColor 2px,
+              currentColor 4px
+            )
+          `,
+        }}
+      />
+      <div className="relative z-10">
       <header className="flex items-center justify-between border-b border-border bg-background px-[var(--kauri-container)] py-4">
         <Image
           src="/images/KAURI_logo.png"
@@ -140,6 +156,7 @@ export default function RobotPage () {
       )}
 
       <VoiceFab />
+      </div>
     </div>
   )
 }

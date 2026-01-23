@@ -1,142 +1,146 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { clampToCanvas } from "./utils"
+import { useState, useEffect, useRef } from "react"
 
-function BlueprintZones () {
-  const zones = [
-    { x: 6, y: 10, w: 18, h: 12, label: "Entrance" },
-    { x: 6, y: 48, w: 18, h: 12, label: "Checkout" },
-    { x: 32, y: 8, w: 26, h: 14, label: "Section A" },
-    { x: 32, y: 26, w: 26, h: 14, label: "Section B" },
-    { x: 32, y: 44, w: 26, h: 14, label: "Section C" },
-    { x: 64, y: 8, w: 26, h: 16, label: "Premium" },
-    { x: 64, y: 30, w: 26, h: 16, label: "Storage" },
-  ]
-  const shelves = [
-    { x: 36, y: 13, w: 4, h: 2, label: "A1" },
-    { x: 44, y: 13, w: 4, h: 2, label: "A2" },
-    { x: 52, y: 13, w: 4, h: 2, label: "A3" },
-    { x: 36, y: 17.5, w: 4, h: 2, label: "A4" },
-    { x: 44, y: 17.5, w: 4, h: 2, label: "A5" },
-    { x: 52, y: 17.5, w: 4, h: 2, label: "A6" },
-    { x: 36, y: 31, w: 4.5, h: 2, label: "B1" },
-    { x: 44.5, y: 31, w: 4.5, h: 2, label: "B2" },
-    { x: 53, y: 31, w: 4.5, h: 2, label: "B3" },
-    { x: 36, y: 35.5, w: 4.5, h: 2, label: "B4" },
-    { x: 44.5, y: 35.5, w: 4.5, h: 2, label: "B5" },
-    { x: 53, y: 35.5, w: 4.5, h: 2, label: "B6" },
-    { x: 36, y: 49.5, w: 4.5, h: 2, label: "C1" },
-    { x: 44.5, y: 49.5, w: 4.5, h: 2, label: "C2" },
-    { x: 53, y: 49.5, w: 4.5, h: 2, label: "C3" },
-    { x: 69, y: 12.5, w: 4, h: 2.5, label: "P1" },
-    { x: 77, y: 12.5, w: 4, h: 2.5, label: "P2" },
-    { x: 69, y: 19.5, w: 4, h: 2.5, label: "P3" },
-    { x: 77, y: 19.5, w: 4, h: 2.5, label: "P4" },
-    { x: 69, y: 36.5, w: 4, h: 2.5, label: "S1" },
-    { x: 77, y: 36.5, w: 4, h: 2.5, label: "S2" },
-    { x: 69, y: 42.5, w: 4, h: 2.5, label: "S3" },
-    { x: 77, y: 42.5, w: 4, h: 2.5, label: "S4" },
-  ]
-  const aisles = [
-    "M 28 6 L 28 64",
-    "M 30 6 L 30 64",
-    "M 28 24 L 92 24",
-    "M 28 40 L 92 40",
-    "M 28 56 L 92 56",
-    "M 64 8 L 64 64",
-  ]
+function StoreLayout() {
   return (
     <>
-      {zones.map((z) => (
-        <g key={z.label}>
-          <rect
-            x={z.x}
-            y={z.y}
-            width={z.w}
-            height={z.h}
-            fill="rgba(255,255,255,0.03)"
-            stroke="rgba(255,255,255,0.12)"
-            strokeWidth="0.5"
-          />
-          <rect
-            x={z.x + 1.2}
-            y={z.y + 1.2}
-            width={z.label.length * 1.9 + 3.2}
-            height="3.6"
-            fill="rgba(13,40,60,0.9)"
-            stroke="rgba(255,255,255,0.12)"
-            strokeWidth="0.4"
-            rx="0.9"
-          />
-          <text
-            x={z.x + 2.4}
-            y={z.y + 3.9}
-            fill="rgba(255,255,255,0.85)"
-            fontSize="2.1"
-            textAnchor="start"
-            fontFamily="var(--font-sans, 'Inter', sans-serif)"
-          >
-            {z.label}
-          </text>
-        </g>
-      ))}
-      {aisles.map((d, i) => (
-        <path
-          key={d}
-          d={d}
-          stroke="rgba(255,255,255,0.08)"
-          strokeWidth="0.35"
-          strokeDasharray={i % 2 === 0 ? "2.4 2" : "1 1.8"}
-          fill="none"
-        />
-      ))}
-      {shelves.map((s) => (
-        <g key={s.label}>
-          <rect
-            x={s.x}
-            y={s.y}
-            width={s.w}
-            height={s.h}
-            fill="rgba(94,234,212,0.08)"
-            stroke="rgba(94,234,212,0.5)"
-            strokeWidth="0.45"
-            rx="0.5"
-          />
-          <text
-            x={s.x + s.w / 2}
-            y={s.y + s.h / 2 + 0.6}
-            textAnchor="middle"
-            fill="rgba(94,234,212,0.9)"
-            fontSize="1.6"
-            fontFamily="var(--font-sans, 'Inter', sans-serif)"
-          >
-            {s.label}
-          </text>
-        </g>
-      ))}
-    </>
-  )
-}
+      {/* Outer Walls */}
+      <rect x="5" y="5" width="390" height="490" fill="none" stroke="currentColor" strokeWidth="6" className="text-foreground/20" />
 
-function Marker ({ x, y, color, label }: { x: number; y: number; color: string; label: string }) {
-  return (
-    <>
-      <circle cx={x} cy={y} r="1.6" fill={color} stroke="#0b1f2e" strokeWidth="0.5" />
-      <text
-        x={x + 2.6}
-        y={y + 0.8}
-        fill={color}
-        fontSize="2"
-        fontFamily="var(--font-sans, 'Inter', sans-serif)"
-      >
-        {label}
+      {/* --- TOP SECTION --- */}
+
+      {/* Back Stock Room */}
+      <rect x="5" y="5" width="390" height="60" fill="currentColor" fillOpacity="0.1" className="text-foreground/20" />
+      <text x="200" y="35" dominantBaseline="middle" textAnchor="middle" className="text-[12px] font-bold fill-muted-foreground uppercase tracking-widest">
+        [ BACK STOCK ROOM ]
+      </text>
+
+      {/* Fitting Rooms */}
+      {/* Left */}
+      <g transform="translate(5, 5)">
+        <rect width="60" height="60" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground/20" />
+        <text x="30" y="25" textAnchor="middle" className="text-[10px] font-bold fill-muted-foreground">Fitting Room</text>
+        <text x="30" y="40" textAnchor="middle" className="text-[8px] font-bold fill-muted-foreground">[CURTAIN]</text>
+      </g>
+      {/* Right */}
+      <g transform="translate(335, 5)">
+        <rect width="60" height="60" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground/20" />
+        <text x="30" y="25" textAnchor="middle" className="text-[10px] font-bold fill-muted-foreground">Fitting Room</text>
+        <text x="30" y="40" textAnchor="middle" className="text-[8px] font-bold fill-muted-foreground">[CURTAIN]</text>
+      </g>
+
+      {/* Sneaker Wall */}
+      <rect x="80" y="80" width="240" height="20" rx="2" fill="currentColor" fillOpacity="0.2" className="text-foreground/20" />
+      <text x="200" y="90" dominantBaseline="middle" textAnchor="middle" className="text-[10px] font-bold fill-muted-foreground">
+        [ SNEAKER WALL ]
+      </text>
+
+      {/* --- CENTER ISLANDS --- */}
+
+      {/* Island 3 (Top) - Guinadi */}
+      <rect x="150" y="140" width="100" height="40" rx="10" fill="currentColor" fillOpacity="0.1" className="text-foreground/20" />
+      <text x="200" y="160" textAnchor="middle" className="text-[9px] font-bold fill-muted-foreground">ISLAND 3</text>
+      <text x="200" y="172" textAnchor="middle" className="text-[8px] fill-muted-foreground">(Guinadi)</text>
+
+      {/* Island 2 (Mid) - Sacheto */}
+      <rect x="150" y="220" width="100" height="40" rx="10" fill="currentColor" fillOpacity="0.1" className="text-foreground/20" />
+      <text x="200" y="240" textAnchor="middle" className="text-[9px] font-bold fill-muted-foreground">ISLAND 2</text>
+      <text x="200" y="252" textAnchor="middle" className="text-[8px] fill-muted-foreground">(Sacheto/Bags)</text>
+
+      {/* Island 1 (Bottom) - Cosmetics */}
+      <rect x="150" y="300" width="100" height="40" rx="10" fill="currentColor" fillOpacity="0.1" className="text-foreground/20" />
+      <text x="200" y="320" textAnchor="middle" className="text-[9px] font-bold fill-muted-foreground">ISLAND 1</text>
+      <text x="200" y="332" textAnchor="middle" className="text-[8px] fill-muted-foreground">(Cosmetics)</text>
+
+      {/* --- RIGHT SIDE --- */}
+
+      {/* Cashier */}
+      <g transform="translate(260, 200)">
+        <rect width="30" height="80" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground/20" />
+        <text x="15" y="40" textAnchor="middle" transform="rotate(-90, 15, 40)" className="text-[10px] font-bold fill-muted-foreground tracking-widest">CASHIER</text>
+      </g>
+
+      {/* Right Wall Sections (Men) */}
+      <text x="360" y="140" textAnchor="middle" className="text-[10px] font-bold fill-muted-foreground">Men</text>
+      <text x="360" y="152" textAnchor="middle" className="text-[8px] fill-muted-foreground">JACKETS</text>
+
+      <text x="360" y="240" textAnchor="middle" className="text-[10px] font-bold fill-muted-foreground">Men</text>
+      <text x="360" y="252" textAnchor="middle" className="text-[8px] fill-muted-foreground">SHIRTS & KNIT</text>
+
+      <rect x="365" y="350" width="10" height="60" fill="currentColor" fillOpacity="0.2" className="text-foreground/20" />
+      <text x="350" y="370" textAnchor="middle" className="text-[10px] font-bold fill-muted-foreground">Men</text>
+      <text x="350" y="382" textAnchor="middle" className="text-[8px] fill-muted-foreground">PANTS (Racks)</text>
+
+      {/* --- LEFT SIDE --- */}
+
+      {/* Left Wall Sections (Women) */}
+      {/* Women Pants (Racks) */}
+      <rect x="25" y="140" width="10" height="60" fill="currentColor" fillOpacity="0.2" className="text-foreground/20" />
+      <text x="55" y="160" textAnchor="middle" className="text-[10px] font-bold fill-muted-foreground">Women</text>
+      <text x="55" y="172" textAnchor="middle" className="text-[8px] fill-muted-foreground">PANTS (Racks)</text>
+
+      {/* Women Shirts */}
+      <text x="55" y="240" textAnchor="middle" className="text-[10px] font-bold fill-muted-foreground">Women</text>
+      <text x="55" y="252" textAnchor="middle" className="text-[8px] fill-muted-foreground">SHIRTS & KNIT</text>
+
+      {/* Women Jackets */}
+      <text x="55" y="370" textAnchor="middle" className="text-[10px] font-bold fill-muted-foreground">Women</text>
+      <text x="55" y="382" textAnchor="middle" className="text-[8px] fill-muted-foreground">JACKETS</text>
+
+      {/* --- BOTTOM --- */}
+
+      {/* Main Entrance */}
+      <rect x="120" y="460" width="160" height="30" fill="currentColor" fillOpacity="0.05" stroke="currentColor" strokeWidth="1" className="text-foreground/20" />
+      <text x="200" y="475" dominantBaseline="middle" textAnchor="middle" className="text-[12px] font-bold fill-muted-foreground uppercase tracking-widest">
+        MAIN ENTRANCE
       </text>
     </>
   )
 }
 
-function LegendSwatch ({
+function RobotMarker({ x, y }: { x: number; y: number }) {
+  return (
+    <g>
+      <circle cx={x} cy={y} r="7" fill="#38bdf8" stroke="#0b1f2e" strokeWidth="1.5" />
+      <circle cx={x} cy={y} r="10" fill="#38bdf8" fillOpacity="0.2" />
+      <text
+        x={x}
+        y={y - 12}
+        textAnchor="middle"
+        fill="#38bdf8"
+        fontSize="10"
+        fontWeight="bold"
+        fontFamily="var(--font-sans, 'Inter', sans-serif)"
+      >
+        Robot
+      </text>
+    </g>
+  )
+}
+
+function ProductMarker({ x, y }: { x: number; y: number }) {
+  return (
+    <g>
+      <circle cx={x} cy={y} r="6" fill="#4ade80" stroke="#0b1f2e" strokeWidth="1.5" />
+      <circle cx={x} cy={y} r="9" fill="#4ade80" fillOpacity="0.2" />
+      <text
+        x={x}
+        y={y - 10}
+        textAnchor="middle"
+        fill="#4ade80"
+        fontSize="10"
+        fontWeight="bold"
+        fontFamily="var(--font-sans, 'Inter', sans-serif)"
+      >
+        Product
+      </text>
+    </g>
+  )
+}
+
+function LegendSwatch({
   variant,
   label,
 }: {
@@ -144,26 +148,81 @@ function LegendSwatch ({
   label: string
 }) {
   const swatchClass = {
-    robot: "h-3 w-6 rounded-none bg-kauri-blue",
-    product: "h-3 w-6 rounded-none bg-kauri-green",
-    path: "h-3 w-6 rounded-none border-2 border-dashed border-kauri-green bg-transparent",
-    shelves: "h-3 w-6 rounded-none bg-kauri-green/50",
+    robot: "h-4 w-8 rounded-none bg-kauri-blue",
+    product: "h-4 w-8 rounded-none bg-kauri-green",
+    path: "h-4 w-8 rounded-none border-2 border-dashed border-kauri-green bg-transparent",
+    shelves: "h-4 w-8 rounded-none bg-kauri-green/50",
   }[variant]
   return (
-    <div className="flex items-center gap-2 font-sans text-[1rem] font-medium uppercase tracking-wide text-foreground">
+    <div className="flex items-center gap-2.5 font-sans text-[1rem] font-medium uppercase tracking-wide text-foreground">
       <span className={cn("shrink-0", swatchClass)} aria-hidden />
       <span>{label}</span>
     </div>
   )
 }
 
-export function BlueprintMap ({
+// Convert from old coordinate system (0-100, 0-70) to new system (0-400, 0-500)
+function convertCoordinates(pos: { x: number; y: number }): { x: number; y: number } {
+  return {
+    x: (pos.x / 100) * 400,
+    y: (pos.y / 70) * 500
+  }
+}
+
+// Clamp coordinates to the new canvas bounds
+function clampToNewCanvas(pos: { x: number; y: number }): { x: number; y: number } {
+  return {
+    x: Math.max(10, Math.min(390, pos.x)),
+    y: Math.max(10, Math.min(490, pos.y))
+  }
+}
+
+// Determine location description based on product position
+function getLocationDescription(pos: { x: number; y: number }): string {
+  const { x, y } = pos
+
+  // Left side (Women's section)
+  if (x < 100) {
+    if (y < 200) {
+      return "on my left, 1st row along the wall — Women's Pants"
+    } else if (y < 300) {
+      return "on my left, 2nd row along the wall — Women's Shirts"
+    } else {
+      return "on my left, 3rd row along the wall — Women's Jackets"
+    }
+  }
+
+  // Right side (Men's section)
+  if (x > 300) {
+    if (y < 200) {
+      return "on my right, 1st row along the wall — Men's Jackets"
+    } else if (y < 300) {
+      return "on my right, 2nd row along the wall — Men's Shirts"
+    } else {
+      return "on my right, 3rd row along the wall — Men's Pants"
+    }
+  }
+
+  // Center area (Islands)
+  if (y < 200) {
+    return "straight ahead, at the 1st center display"
+  } else if (y < 280) {
+    return "straight ahead, at the 2nd center display"
+  } else if (y < 360) {
+    return "straight ahead, at the 3rd center display"
+  } else {
+    return "straight ahead, near the entrance"
+  }
+}
+
+export function BlueprintMap({
   productPosition,
   robotPosition,
   showRoute,
   hasReachedProduct,
   onStartGuidance,
   isGuiding,
+  onClose,
 }: {
   productPosition: { x: number; y: number }
   robotPosition: { x: number; y: number }
@@ -171,39 +230,93 @@ export function BlueprintMap ({
   hasReachedProduct: boolean
   onStartGuidance: () => void
   isGuiding: boolean
+  onClose: () => void
 }) {
-  const safeProduct = clampToCanvas(productPosition)
-  const safeRobot = clampToCanvas(robotPosition)
-  const spineX = 28
+  const [overlayStage, setOverlayStage] = useState<"follow" | "almost" | "here" | "found" | null>(null)
+  const hasTriggeredRef = useRef(false)
+  const timersRef = useRef<NodeJS.Timeout[]>([])
+
+  // Convert and clamp positions to new coordinate system
+  const convertedProduct = convertCoordinates(productPosition)
+  const convertedRobot = convertCoordinates(robotPosition)
+  const safeProduct = clampToNewCanvas(convertedProduct)
+  const safeRobot = clampToNewCanvas(convertedRobot)
+
+  // Clear all timers helper
+  const clearAllTimers = () => {
+    timersRef.current.forEach(timer => clearTimeout(timer))
+    timersRef.current = []
+  }
+
+  // Handle overlay stages when guidance starts - only trigger once
+  useEffect(() => {
+    if (isGuiding && !hasReachedProduct && !hasTriggeredRef.current) {
+      hasTriggeredRef.current = true
+      clearAllTimers()
+
+      // Stage 1: Show "Follow me" immediately for 3s
+      timersRef.current.push(setTimeout(() => setOverlayStage("follow"), 10))
+
+      // Stage 2: After 3s, show "Almost there" for 2s
+      timersRef.current.push(setTimeout(() => setOverlayStage("almost"), 3000))
+
+      // Stage 3: After 5s total (3+2), show "Here is your product" for 1s
+      timersRef.current.push(setTimeout(() => setOverlayStage("here"), 5000))
+
+      // Stage 4: After 6s total (3+2+1), show location description + button
+      timersRef.current.push(setTimeout(() => setOverlayStage("found"), 6000))
+    }
+
+    // Cleanup only on unmount
+    return () => {
+      if (!isGuiding) {
+        clearAllTimers()
+      }
+    }
+  }, [isGuiding, hasReachedProduct])
+
+  // Handle closing the overlay when button is clicked
+  const handleFoundIt = () => {
+    clearAllTimers()
+    setOverlayStage(null)
+    hasTriggeredRef.current = false
+    onClose()
+  }
+
+  // Calculate route through center aisle (x = 200 is center)
+  const centerX = 200
+  const locationDescription = getLocationDescription(safeProduct)
+
   return (
-    <div className="relative min-h-[360px] overflow-hidden rounded-none border-2 border-border bg-[#0b1f2e] lg:min-h-[460px]">
+    <div className="relative w-full h-full overflow-hidden rounded-none border-2 border-border bg-card">
+      {/* Floor Texture/Grid */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+      </div>
+
       <svg
-        viewBox="0 0 100 70"
-        className="h-full w-full"
+        viewBox="0 0 400 500"
+        className="w-full h-full text-foreground/20"
+        preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label="Store floor plan with product location and robot position"
       >
-        <defs>
-          <pattern id="grid" width="5" height="5" patternUnits="userSpaceOnUse">
-            <path d="M 5 0 L 0 0 0 5" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.25" />
-          </pattern>
-        </defs>
-        <rect width="100" height="70" fill="#0b1f2e" />
-        <rect width="100" height="70" fill="url(#grid)" />
-        <BlueprintZones />
+        <StoreLayout />
         {showRoute && (
           <polyline
-            points={`${safeRobot.x},${safeRobot.y} ${spineX},${safeRobot.y} ${spineX},${safeProduct.y} ${safeProduct.x},${safeProduct.y}`}
+            points={`${safeRobot.x},${safeRobot.y} ${centerX},${safeRobot.y} ${centerX},${safeProduct.y} ${safeProduct.x},${safeProduct.y}`}
             fill="none"
             stroke="#5eead4"
-            strokeWidth="1.4"
-            strokeDasharray="2.5 1.6"
+            strokeWidth="3"
+            strokeDasharray="8 4"
+            opacity="0.8"
           />
         )}
-        <Marker x={safeRobot.x} y={safeRobot.y} color="#38bdf8" label="Robot" />
-        <Marker x={safeProduct.x} y={safeProduct.y} color="#4ade80" label="Product" />
+        <RobotMarker x={safeRobot.x} y={safeRobot.y} />
+        <ProductMarker x={safeProduct.x} y={safeProduct.y} />
       </svg>
-      <div className="pointer-events-none absolute left-4 right-72 bottom-4 flex flex-wrap items-center gap-4 rounded-none border-2 border-foreground bg-background px-4 py-3">
+      <div className="pointer-events-none absolute left-6 right-48 bottom-6 flex flex-wrap items-center gap-3 rounded-none  border-foreground bg-transparent
+       px-4 py-3">
         <LegendSwatch variant="robot" label="Robot start" />
         <LegendSwatch variant="product" label="Product location" />
         <LegendSwatch variant="path" label="Guidance path" />
@@ -212,7 +325,7 @@ export function BlueprintMap ({
       <button
         type="button"
         onClick={onStartGuidance}
-        className="absolute bottom-5 right-5 z-10 flex min-h-[6.4rem] items-center justify-center gap-2 rounded-none border-2 border-kauri-green bg-kauri-green px-8 py-6 font-sans text-[2rem] font-semibold uppercase tracking-wide text-white transition-all hover:bg-kauri-green/90 active:scale-95"
+        className="absolute bottom-6 right-6 z-10 flex min-h-[4.5rem] items-center justify-center gap-3 rounded-none border-2 border-kauri-green bg-kauri-green px-8 py-4 font-sans text-[1.4rem] font-semibold uppercase tracking-wide text-white transition-all hover:bg-kauri-green/90 active:scale-95"
       >
         {hasReachedProduct
           ? "Here is your product"
@@ -220,6 +333,53 @@ export function BlueprintMap ({
             ? "Guiding..."
             : "Take me to the product"}
       </button>
+
+      {/* Guidance Overlay */}
+      {overlayStage && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="text-center space-y-6 px-8">
+            {/* Stage 1: Follow me (3s) */}
+            {overlayStage === "follow" && (
+              <h2 className="font-heading text-[3.5rem] lg:text-[4.5rem] font-bold uppercase tracking-wider text-foreground animate-pulse">
+                Follow me
+              </h2>
+            )}
+
+            {/* Stage 2: Almost there (2s) */}
+            {overlayStage === "almost" && (
+              <h2 className="font-heading text-[3.5rem] lg:text-[4.5rem] font-bold uppercase tracking-wider text-foreground animate-pulse">
+                Almost there...
+              </h2>
+            )}
+
+            {/* Stage 3: Here is your product (1s) */}
+            {overlayStage === "here" && (
+              <h2 className="font-heading text-[3.5rem] lg:text-[4.5rem] font-bold uppercase tracking-wider text-foreground">
+                Here is your product
+              </h2>
+            )}
+
+            {/* Stage 4: Location Description + Button */}
+            {overlayStage === "found" && (
+              <>
+                <h2 className="font-heading text-[3.5rem] lg:text-[4.5rem] font-bold uppercase tracking-wider text-foreground pb-8">
+                  Here is your product
+                </h2>
+                <p className="font-sans text-[1.5rem] lg:text-[2rem] font-medium text-foreground/80 max-w-2xl mx-auto leading-relaxed">
+                  Look to my left, 2nd row along the wall.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleFoundIt}
+                  className="mt-20 flex min-h-[6rem] items-center justify-center gap-3 rounded-none border-2 border-kauri-green bg-kauri-green px-12 py-4 font-sans text-[2rem] font-semibold uppercase tracking-wide text-white transition-all hover:bg-kauri-green/90 active:scale-95 animate-in fade-in duration-300 mx-auto"
+                >
+                  I found it!
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

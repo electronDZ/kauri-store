@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react"
 import Image from "next/image"
-import { Camera } from "lucide-react"
+import { Camera, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BackArrowIcon, HeartFilledIcon, HeartIcon } from "../icons"
 import {
@@ -44,8 +44,11 @@ export function StyleMatchFlow({
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [visibleDots, setVisibleDots] = useState<Set<string>>(new Set())
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [isGeneratingMore, setIsGeneratingMore] = useState(false)
+  const [generationCount, setGenerationCount] = useState(0)
   const scanningTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const processingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const generatingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Map hotspots to generated product images
   const hotspotProducts = useMemo(() => {
@@ -105,7 +108,7 @@ export function StyleMatchFlow({
 
   // Animate dots popping in one by one
   useEffect(() => {
-    if (step === "results" && imageLoaded) {
+    if (step === "results" && imageLoaded && !isGeneratingMore) {
       const items = MOCK_OUTFIT.items
       items.forEach((item, index) => {
         setTimeout(() => {
@@ -113,7 +116,7 @@ export function StyleMatchFlow({
         }, index * 100)
       })
     }
-  }, [step, imageLoaded])
+  }, [step, imageLoaded, isGeneratingMore])
 
   const handleDotClick = (itemId: string, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -123,6 +126,38 @@ export function StyleMatchFlow({
   const handleBackgroundClick = () => {
     setSelectedItemId(null)
   }
+
+  const handleFindMoreStyles = () => {
+    setIsGeneratingMore(true)
+    setSelectedItemId(null)
+    setVisibleDots(new Set())
+    setImageLoaded(false)
+    setGenerationCount((prev) => prev + 1)
+
+    // Simulate AI generation process
+    generatingTimeoutRef.current = setTimeout(() => {
+      setImageLoaded(true)
+      setIsGeneratingMore(false)
+      // Trigger re-animation of dots after a brief delay
+      setTimeout(() => {
+        const items = MOCK_OUTFIT.items
+        items.forEach((item, index) => {
+          setTimeout(() => {
+            setVisibleDots((prev) => new Set([...prev, item.id]))
+          }, index * 100)
+        })
+      }, 300)
+    }, 2500)
+  }
+
+  // Cleanup generating timeout
+  useEffect(() => {
+    return () => {
+      if (generatingTimeoutRef.current) {
+        clearTimeout(generatingTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const footerBack = (
     <div className="border-t border-border bg-background/95 p-8 backdrop-blur">
@@ -156,38 +191,42 @@ export function StyleMatchFlow({
             We only use colour information. The image is not saved.
           </p>
         </div>
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-10">
-            <div className="mb-10 rounded-none border border-border bg-muted/50 p-6">
-              <p className="font-sans text-[1.4rem] leading-relaxed text-foreground/80">
-                <strong className="text-foreground">Your privacy:</strong> We do not store photos. Only colour values are used to suggest products. Your images are never saved or stored.
-              </p>
-              <details className="mt-4">
-                <summary className="cursor-pointer font-sans text-[1.4rem] font-medium uppercase tracking-wide text-foreground/70 hover:text-foreground">
-                  How it works
-                </summary>
-                <p className="mt-3 font-sans text-[1.3rem] leading-relaxed text-muted-foreground">
-                  The camera captures a short live image. Our system analyzes the overall colour palette from the image to suggest complementary products. The image is deleted immediately. Only the colour information is used to filter product recommendations. We do not store your images.
+        <div className="relative flex flex-1 flex-col overflow-hidden">
+          <div className="absolute inset-0 flex flex-col">
+            <div className="px-10 pt-10">
+              <div className="mb-10 rounded-none border border-border bg-muted/50 p-6">
+                <p className="font-sans text-[1.4rem] leading-relaxed text-foreground/80">
+                  <strong className="text-foreground">Your privacy:</strong> We do not store photos. Only colour values are used to suggest products. Your images are never saved or stored.
                 </p>
-              </details>
-            </div>
-            <div className="flex flex-col items-center justify-center gap-10">
-              <div className="relative flex h-64 w-64 shrink-0 items-center justify-center rounded-none border-2 border-foreground bg-muted">
-                <div className="absolute inset-3 rounded-none border border-dashed border-foreground/30" aria-hidden />
-                <Camera className="h-16 w-16 text-foreground/40" strokeWidth={1.5} />
+                <details className="mt-4">
+                  <summary className="cursor-pointer font-sans text-[1.4rem] font-medium uppercase tracking-wide text-foreground/70 hover:text-foreground">
+                    How it works
+                  </summary>
+                  <p className="mt-3 font-sans text-[1.3rem] leading-relaxed text-muted-foreground">
+                    The camera captures a short live image. Our system analyzes the overall colour palette from the image to suggest complementary products. The image is deleted immediately. Only the colour information is used to filter product recommendations. We do not store your images.
+                  </p>
+                </details>
               </div>
-              <p className="max-w-md text-center font-sans text-[1.6rem] text-foreground/80">
-                Position your face in the frame, then tap Capture.
-              </p>
-              <button
-                onClick={() => {
-                  setUndertone("warm")
-                  setStep("scanning")
-                }}
-                className="rounded-none bg-kauri-green px-[var(--kauri-btn-x)] py-[var(--kauri-btn-y)] font-sans text-[1.8rem] font-medium uppercase tracking-wide text-primary-foreground transition-all hover:bg-kauri-green/90 active:scale-95"
-              >
-                Capture
-              </button>
+            </div>
+            <div className="flex flex-1 items-center justify-center">
+              <div className="flex flex-col items-center justify-center gap-16">
+                <div className="relative flex h-[32rem] w-[32rem] shrink-0 items-center justify-center rounded-none border-2 border-foreground bg-muted">
+                  <div className="absolute inset-4 rounded-none border border-dashed border-foreground/30 bg-muted" aria-hidden />
+                  <Camera className="relative z-10 h-32 w-32 text-foreground/40" strokeWidth={1.5} />
+                </div>
+                <p className="max-w-xl text-center font-sans text-[2.4rem] text-foreground/80">
+                  Position your face in the frame, then tap Capture.
+                </p>
+                <button
+                  onClick={() => {
+                    setUndertone("warm")
+                    setStep("scanning")
+                  }}
+                  className="rounded-none bg-kauri-green px-[var(--kauri-btn-x)] py-[var(--kauri-btn-y)] font-sans text-[2.8rem] font-bold uppercase tracking-wide text-primary-foreground transition-all hover:bg-kauri-green/90 active:scale-95"
+                >
+                  CAPTURE
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -243,12 +282,22 @@ export function StyleMatchFlow({
   return (
     <div className="flex h-full w-full flex-col">
       <div className="border-b border-border bg-background/80 px-10 py-8 backdrop-blur">
-        <h2 className="font-heading text-[3.2rem] uppercase leading-tight tracking-wide text-foreground">
-          Your Style Match
-        </h2>
-        <p className="mt-2 font-sans text-[1.8rem] leading-relaxed text-foreground/70">
-          {outfit.theme} — {outfit.items.length} items
-        </p>
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <h2 className="font-heading text-[3.2rem] uppercase leading-tight tracking-wide text-foreground">
+              Your Style Match
+            </h2>
+            <p className="mt-2 font-sans text-[1.8rem] leading-relaxed text-foreground/70">
+              {outfit.theme} — {outfit.items.length} items
+            </p>
+            <p className="mt-4 flex items-center gap-3 font-sans text-[1.6rem] font-medium leading-relaxed">
+              <span className="text-kauri-green font-bold text-[1.8rem]">✓</span>
+              <span className="text-foreground">
+                <strong className="text-kauri-green">Privacy Protected:</strong> This AI-generated image is not saved on our servers. Only color information is used for recommendations.
+              </span>
+            </p>
+          </div>
+        </div>
       </div>
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="flex flex-1 gap-6 overflow-hidden p-10">
@@ -264,11 +313,34 @@ export function StyleMatchFlow({
                 fill
                 className={cn(
                   "object-cover transition-opacity duration-1000",
-                  imageLoaded ? "opacity-100" : "opacity-0"
+                  imageLoaded && !isGeneratingMore ? "opacity-100" : "opacity-0"
                 )}
                 sizes="30vw"
                 onLoad={() => setImageLoaded(true)}
               />
+              {/* Floating AI badge */}
+              <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border-2 border-kauri-green bg-background/95 px-4 py-2 backdrop-blur-sm shadow-lg">
+                <Sparkles className="h-5 w-5 text-kauri-green" strokeWidth={2.5} />
+                <span className="font-sans text-[1.2rem] font-bold uppercase tracking-wide text-kauri-green">
+                  AI Generated
+                </span>
+              </div>
+              {/* Generating overlay */}
+              {isGeneratingMore && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm">
+                  <div className="relative mb-6">
+                    <div className="h-20 w-20 rounded-full border-4 border-kauri-green/30" />
+                    <div className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full border-4 border-kauri-green" />
+                    <Sparkles className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 text-kauri-green" strokeWidth={2.5} />
+                  </div>
+                  <p className="font-heading text-[2rem] uppercase tracking-wide text-foreground">
+                    Generating New Styles
+                  </p>
+                  <p className="mt-2 font-sans text-[1.4rem] text-muted-foreground">
+                    AI is creating fresh outfit combinations...
+                  </p>
+                </div>
+              )}
               {/* Hotspot dots */}
               {outfit.items.map((item) => {
                 const isVisible = visibleDots.has(item.id)
@@ -307,102 +379,126 @@ export function StyleMatchFlow({
           {/* Right side: Product cards grid */}
           <div className="flex-1 overflow-y-auto">
             <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
-              {outfit.items.map((item) => {
-                const product = hotspotProducts[item.id]
-                if (!product) return null
-
-                const isSelected = selectedItemId === item.id
-                const isDimmed = selectedItemId !== null && selectedItemId !== item.id
-
-                return (
-                  <div
-                    key={item.id}
-                    className={cn(
-                      "group relative flex flex-col overflow-hidden rounded-none border border-border bg-background transition-all",
-                      isSelected
-                        ? "border-kauri-green shadow-lg scale-[1.02]"
-                        : isDimmed
-                          ? "opacity-30"
-                          : "hover:border-foreground hover:shadow-lg"
-                    )}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedItemId(isSelected ? null : item.id)}
-                      className="flex flex-col text-left"
+              {isGeneratingMore
+                ? // Skeleton loading cards
+                  Array.from({ length: outfit.items.length }).map((_, index) => (
+                    <div
+                      key={`skeleton-${index}`}
+                      className="flex flex-col overflow-hidden rounded-none border border-border bg-background"
                     >
                       <div className="relative aspect-square w-full overflow-hidden bg-muted">
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          fill
-                          className="object-cover transition-transform group-hover:scale-105"
-                          sizes="300px"
-                        />
-                        {product.isNew && (
-                          <div className="absolute left-0 top-0 bg-kauri-green px-4 py-2 font-sans text-[1.2rem] font-bold uppercase tracking-wider text-white">
-                            NEW
-                          </div>
-                        )}
+                        <div className="h-full w-full animate-pulse bg-gradient-to-r from-muted via-muted/50 to-muted" />
                       </div>
-                      <div className="flex flex-col gap-2 p-6">
-                        <h4 className="line-clamp-2 font-sans text-[1.6rem] font-medium leading-snug text-foreground">
-                          {product.name}
-                        </h4>
-                        <p className="font-sans text-[1.8rem] font-bold text-foreground">
-                          {product.price}
-                        </p>
+                      <div className="flex flex-col gap-3 p-6">
+                        <div className="h-6 w-3/4 animate-pulse rounded bg-muted" />
+                        <div className="h-5 w-1/2 animate-pulse rounded bg-muted" />
                       </div>
-                    </button>
-                    {onToggleSaved && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onToggleSaved(product.id)
-                        }}
+                    </div>
+                  ))
+                : // Actual product cards
+                  outfit.items.map((item) => {
+                    const product = hotspotProducts[item.id]
+                    if (!product) return null
+
+                    const isSelected = selectedItemId === item.id
+                    const isDimmed = selectedItemId !== null && selectedItemId !== item.id
+
+                    return (
+                      <div
+                        key={item.id}
                         className={cn(
-                          "absolute right-2 top-2 z-10 flex h-20 w-20 items-center justify-center rounded-none border transition-colors",
-                          savedProductIds?.includes(product.id)
-                            ? "border-transparent bg-background/90 text-kauri-red hover:bg-background"
-                            : "border-border bg-background/90 text-foreground/70 hover:bg-background hover:text-foreground"
+                          "group relative flex flex-col overflow-hidden rounded-none border border-border bg-background transition-all",
+                          isSelected
+                            ? "border-kauri-green shadow-lg scale-[1.02]"
+                            : isDimmed
+                              ? "opacity-30"
+                              : "hover:border-foreground hover:shadow-lg"
                         )}
-                        aria-label={savedProductIds?.includes(product.id) ? "Remove from saved" : "Save for later"}
                       >
-                        {savedProductIds?.includes(product.id) ? (
-                          <HeartFilledIcon className="size-10" />
-                        ) : (
-                          <HeartIcon className="size-10" />
+                        <button
+                          type="button"
+                          onClick={() => setSelectedItemId(isSelected ? null : item.id)}
+                          className="flex flex-col text-left"
+                        >
+                          <div className="relative aspect-square w-full overflow-hidden bg-muted">
+                            <Image
+                              src={product.image}
+                              alt={product.name}
+                              fill
+                              className="object-cover transition-transform group-hover:scale-105"
+                              sizes="300px"
+                            />
+                            {product.isNew && (
+                              <div className="absolute left-0 top-0 bg-kauri-green px-4 py-2 font-sans text-[1.2rem] font-bold uppercase tracking-wider text-white">
+                                NEW
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-2 p-6">
+                            <h4 className="line-clamp-2 font-sans text-[1.6rem] font-medium leading-snug text-foreground">
+                              {product.name}
+                            </h4>
+                            <p className="font-sans text-[1.8rem] font-bold text-foreground">
+                              {product.price}
+                            </p>
+                          </div>
+                        </button>
+                        {onToggleSaved && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onToggleSaved(product.id)
+                            }}
+                            className={cn(
+                              "absolute right-2 top-2 z-10 flex h-20 w-20 items-center justify-center rounded-none border transition-colors",
+                              savedProductIds?.includes(product.id)
+                                ? "border-transparent bg-background/90 text-kauri-red hover:bg-background"
+                                : "border-border bg-background/90 text-foreground/70 hover:bg-background hover:text-foreground"
+                            )}
+                            aria-label={savedProductIds?.includes(product.id) ? "Remove from saved" : "Save for later"}
+                          >
+                            {savedProductIds?.includes(product.id) ? (
+                              <HeartFilledIcon className="size-10" />
+                            ) : (
+                              <HeartIcon className="size-10" />
+                            )}
+                          </button>
                         )}
-                      </button>
-                    )}
-                  </div>
-                )
-              })}
+                      </div>
+                    )
+                  })}
             </div>
           </div>
         </div>
 
         <div className="flex gap-4 border-t border-border bg-background/95 p-8 backdrop-blur">
           <button
-            onClick={() => {
-              setStep("camera")
-              setSelectedItemId(null)
-              setVisibleDots(new Set())
-              setImageLoaded(false)
-            }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-none border-0 bg-foreground px-8 py-5 font-sans text-[1.8rem] font-medium uppercase tracking-wide text-primary-foreground transition-all hover:bg-foreground/90 active:scale-95"
+            onClick={handleFindMoreStyles}
+            disabled={isGeneratingMore}
+            className={cn(
+              "group relative flex flex-1 items-center justify-center gap-4 rounded-none border-2 border-kauri-green px-8 py-6 font-sans text-[2rem] font-bold uppercase tracking-wide transition-all active:scale-95",
+              isGeneratingMore
+                ? "cursor-not-allowed bg-kauri-green/20 text-kauri-green/60"
+                : "bg-kauri-green/10 text-kauri-green hover:bg-kauri-green hover:text-primary-foreground"
+            )}
+            aria-label="Find more style suggestions with AI"
           >
-            Scan Again
-          </button>
-          <button
-            onClick={() => {
-              // Placeholder for "More suggestions"
-              alert("Generating more suggestions...")
-            }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-none border-0 bg-foreground px-8 py-5 font-sans text-[1.8rem] font-medium uppercase tracking-wide text-primary-foreground transition-all hover:bg-foreground/90 active:scale-95"
-          >
-            More Options
+            {isGeneratingMore ? (
+              <>
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-kauri-green border-t-transparent" />
+                <span>Generating...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-8 w-8 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-12" strokeWidth={2.5} />
+                <span>Find More Styles</span>
+                <span className="flex items-center gap-1.5 rounded-full border-2 border-kauri-green bg-kauri-green px-3 py-1 font-sans text-[1.2rem] font-bold uppercase tracking-wider text-white">
+                  <Sparkles className="h-4 w-4" strokeWidth={2.5} />
+                  AI
+                </span>
+              </>
+            )}
           </button>
           <button
             onClick={onClose}

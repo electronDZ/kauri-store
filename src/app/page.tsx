@@ -10,16 +10,24 @@ export default function Home() {
     const router = useRouter()
 
     return (
-        <div className="flex min-h-screen flex-col bg-background font-sans text-foreground">
+        <div className="relative flex h-screen flex-col bg-background font-sans text-foreground">
+            {/* Simple line pattern background */}
+            <div 
+                className="absolute inset-0 opacity-[0.03]"
+                style={{
+                    backgroundImage: `
+                        repeating-linear-gradient(
+                            45deg,
+                            transparent,
+                            transparent 2px,
+                            currentColor 2px,
+                            currentColor 4px
+                        )
+                    `,
+                }}
+            />
+            <div className="relative z-10 flex flex-1 flex-col">
             <header>
-                {/* Announcement bar: full width, dark */}
-                <div className="w-full bg-foreground text-primary-foreground">
-                    <div className="flex min-h-16 items-center justify-center px-[var(--kauri-container)]">
-                        <span className="font-sans text-[1.4rem] font-medium tracking-wide">
-                            KAURI HCI — HIGH-FIDELITY PROTOTYPE
-                        </span>
-                    </div>
-                </div>
                 {/* Main nav: logo left */}
                 <nav className="flex w-full items-center justify-between border-b border-border bg-background px-[var(--kauri-container)] py-[1.6rem]">
                     <Link href="/" className="flex shrink-0" aria-label="KAURI home">
@@ -35,8 +43,8 @@ export default function Home() {
             </header>
 
             {/* Main: launcher links */}
-            <main className="flex flex-1 flex-col items-center justify-center px-[var(--kauri-container)] py-24">
-                <div className="flex w-full max-w-5xl flex-col items-center gap-16">
+            <main className="flex flex-1 flex-col items-center justify-center px-[var(--kauri-container)]">
+                <div className="flex w-full max-w-5xl flex-col items-center justify-center gap-16">
                     <section className="flex flex-col items-center gap-[1.6rem] text-center">
                         <h2 className="font-heading uppercase tracking-wide text-foreground">
                             Pick an experience
@@ -46,7 +54,7 @@ export default function Home() {
                         </p>
                     </section>
 
-                    <div className="flex flex-col gap-[1.6rem] sm:flex-row sm:gap-8">
+                    <div className="flex flex-col items-center justify-center gap-[1.6rem] sm:flex-row sm:gap-8">
                         <Button asChild className="w-full uppercase tracking-wide sm:w-auto">
                             <Link href="/robot/login">Robot touch screen</Link>
                         </Button>
@@ -56,6 +64,7 @@ export default function Home() {
                     </div>
                 </div>
             </main>
+            </div>
         </div>
     )
 }

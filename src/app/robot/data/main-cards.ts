@@ -17,7 +17,7 @@ export const MAIN_CARDS = [
   },
   {
     hero: "STYLE MATCH",
-    description: "Scan your skin tone and get personalized outfit recommendations",
+    description: "See and try suggested clothes on your face",
     gridClass: "",
     imageGradient: "from-black/70 to-black/30",
     isCarousel: false,

@@ -2,92 +2,129 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, LogIn, ShieldCheck } from "lucide-react";
+import { User, Lock, LogIn, Fingerprint } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 
 export default function MobileLoginPage() {
     const router = useRouter();
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        // Simple mock authentication for prototype
-        if (password === "1234") {
+        setIsLoading(true);
+        // Any username and password will grant access
+        setTimeout(() => {
             router.push("/mobile");
-        } else {
-            setError("Invalid password");
-            setTimeout(() => setError(""), 3000);
-        }
+        }, 500);
+    };
+
+    const handleFingerprintLogin = () => {
+        setIsLoading(true);
+        // Simulate fingerprint authentication
+        setTimeout(() => {
+            router.push("/mobile");
+        }, 800);
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white flex flex-col items-center justify-center p-6">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-kauri-green/5 via-transparent to-transparent"></div>
+        <div className="min-h-screen bg-background flex flex-col p-6">
+            {/* Logo - Top */}
+            <div className="flex justify-center pt-4 pb-8">
+                <Image
+                    src="/images/KAURI_logo.png"
+                    alt="KAURI"
+                    width={120}
+                    height={36}
+                    className="h-8 w-auto object-contain"
+                    priority
+                />
+            </div>
 
-            <div className="w-full max-w-md space-y-8 relative z-10">
-                {/* Logo */}
-                <div className="flex justify-center mb-8">
-                    <Image
-                        src="/images/KAURI_logo.png"
-                        alt="KAURI"
-                        width={180}
-                        height={54}
-                        className="h-14 w-auto object-contain"
-                        priority
-                    />
-                </div>
-
-                {/* Header */}
-                <div className="text-center space-y-3">
-                    <div className="inline-flex items-center justify-center gap-2 mb-2">
-                        <ShieldCheck className="w-6 h-6 text-kauri-green" />
+            {/* Centered Content */}
+            <div className="flex-1 flex items-center justify-center">
+                <div className="w-full max-w-md space-y-8">
+                    {/* Header */}
+                    <div className="text-center space-y-2">
+                        <h1 className="text-3xl! font-bold font-heading text-foreground uppercase tracking-wider">Store Manager</h1>
+                        <p className="text-sm text-muted-foreground">Secure Mobile Access</p>
                     </div>
-                    <h1 className="text-3xl font-bold font-heading uppercase tracking-wider">Store Manager</h1>
-                    <p className="text-white/60 text-base">Secure Mobile Access</p>
-                </div>
 
-                {/* Login Form */}
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-md shadow-2xl">
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        <div className="space-y-3">
-                            <label className="text-sm font-medium uppercase tracking-wide text-white/80">Access Code</label>
+                    {/* Login Form */}
+                    <div className="bg-card border border-border rounded-lg p-6 shadow-sm space-y-6">
+                    <form onSubmit={handleLogin} className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">Username</label>
                             <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
                                 <Input
-                                    type="password"
-                                    placeholder="Enter your password"
-                                    className="bg-black/50 border-white/20 pl-12 pr-4 py-6 text-white placeholder:text-white/30 text-base rounded-xl focus:border-kauri-green focus:ring-2 focus:ring-kauri-green/20 transition-all"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    type="text"
+                                    placeholder="Enter your username"
+                                    className="pl-12"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                     autoFocus
+                                    disabled={isLoading}
                                 />
                             </div>
                         </div>
 
-                        {error && (
-                            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-                                <p className="text-red-400 text-sm text-center font-medium">{error}</p>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">Password</label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+                                <Input
+                                    type="password"
+                                    placeholder="Enter your password"
+                                    className="pl-12"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    disabled={isLoading}
+                                />
                             </div>
-                        )}
+                        </div>
 
                         <Button
                             type="submit"
-                            className="w-full bg-kauri-green text-black hover:bg-kauri-green/90 font-bold py-6 text-base rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="w-full"
+                            disabled={isLoading}
                         >
-                            <LogIn className="w-5 h-5 mr-2" />
-                            Access Dashboard
+                            <LogIn className="w-4 h-4" />
+                            Log In
                         </Button>
                     </form>
-                </div>
 
-                {/* Footer */}
-                <div className="text-center space-y-2">
-                    <p className="text-xs text-white/40 uppercase tracking-widest">Restricted Access</p>
-                    <p className="text-[10px] text-white/30">Kauri Store • Manager Portal</p>
+                    {/* Divider */}
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-border"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-card px-2 text-muted-foreground">Or</span>
+                        </div>
+                    </div>
+
+                    {/* Fingerprint Login */}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleFingerprintLogin}
+                        disabled={isLoading}
+                    >
+                        <Fingerprint className="w-4 h-4" />
+                        Log In with Fingerprint
+                    </Button>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="text-center space-y-1">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Restricted Access</p>
+                        <p className="text-[10px] text-muted-foreground">Kauri Store • Manager Portal</p>
+                    </div>
                 </div>
             </div>
         </div>
