@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { QRScanner } from "@/components/QRScanner"
 import { QrCode } from "lucide-react"
 
-export default function Home () {
+export default function Home() {
   const router = useRouter()
   const [qrScannerOpen, setQrScannerOpen] = useState(false)
 
@@ -79,7 +79,7 @@ export default function Home () {
               <Link href="/robot">Robot touch screen</Link>
             </Button>
             <Button asChild variant="outline" className="w-full uppercase tracking-wide sm:w-auto">
-              <Link href="/mobile">Mobile app</Link>
+              <Link href="/mobile/login">Mobile app</Link>
             </Button>
           </div>
         </div>
