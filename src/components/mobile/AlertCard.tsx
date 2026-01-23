@@ -2,15 +2,16 @@ import { AlertTriangle, MapPin, CheckCircle, Clock } from "lucide-react";
 
 interface AlertCardProps {
     id: string;
-    type: "theft" | "misplaced" | "missing";
+    type: "theft" | "misplaced" | "missing" | "warning";
     itemName: string;
     detail: string; // Time for theft, Location for misplaced
     message: string;
+    actionLabel?: string;
     onResolve: (id: string) => void;
 }
 
-export function AlertCard({ id, type, itemName, detail, message, onResolve }: AlertCardProps) {
-    const isHighPriority = type === "theft" || type === "missing";
+export function AlertCard({ id, type, itemName, detail, message, actionLabel, onResolve }: AlertCardProps) {
+    const isHighPriority = type === "theft" || type === "missing" || type === "warning";
 
     const styles = isHighPriority
         ? {
@@ -59,7 +60,7 @@ export function AlertCard({ id, type, itemName, detail, message, onResolve }: Al
                         className={`w-full py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${styles.button}`}
                     >
                         <CheckCircle className="w-4 h-4" />
-                        Mark as Resolved
+                        {actionLabel || "Mark as Resolved"}
                     </button>
                 </div>
             </div>

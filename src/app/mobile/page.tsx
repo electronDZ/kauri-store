@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { MetricCard } from "@/components/mobile/MetricCard";
-import { Users, ShieldCheck, Activity, UserCheck } from "lucide-react";
+import { Users, ShieldCheck, Activity, UserCheck, Zap } from "lucide-react";
 import { useMobile } from "@/app/mobile/context/MobileContext";
 
 export default function MobileDashboard() {
 
 
-  const { securityStatus, robotStatus, customerCount } = useMobile();
+  const { securityStatus, robotStatus, customerCount, securityCheckLabel, batteryLevel, isCharging } = useMobile();
 
   return (
     <div className="p-4 space-y-6 animate-in fade-in duration-500">
@@ -40,7 +40,7 @@ export default function MobileDashboard() {
           value={securityStatus === "warning" ? "Attention" : "Safe"}
           icon={ShieldCheck}
           status={securityStatus}
-          description="Last check: 15m ago"
+          description={`Last check: ${securityCheckLabel}`}
         />
       </div>
 
@@ -62,9 +62,15 @@ export default function MobileDashboard() {
         {/* Battery Indicator */}
         <div className="flex items-center gap-3 border-t border-border pt-3">
           <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
-            <div className="bg-primary h-full rounded-full w-[86%]"></div>
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${isCharging ? "bg-amber-500 animate-pulse" : batteryLevel < 20 ? "bg-red-500" : "bg-primary"}`}
+              style={{ width: `${batteryLevel}%` }}
+            ></div>
           </div>
-          <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap">BATTERY: 86%</span>
+          <div className="flex items-center gap-1">
+            {isCharging && <Zap className="w-3 h-3 text-amber-500 animate-pulse" />}
+            <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap">BATTERY: {batteryLevel}%</span>
+          </div>
         </div>
       </div>
 

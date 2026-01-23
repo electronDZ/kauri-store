@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function RobotMap() {
-    const { robotStatus, customerCount, toggleCustomerSimulation, triggerMisplacedItem, addCustomers } = useMobile();
+    const { robotStatus, customerCount, toggleCustomerSimulation, triggerMisplacedItem, triggerMissingItem, addCustomers, updateSecurityCheckTimestamp, isInteracting, isCharging, batteryLevel } = useMobile();
     const [isLive, setIsLive] = useState(false);
 
     const [patrolIndex, setPatrolIndex] = useState(0);
@@ -189,15 +189,19 @@ export default function RobotMap() {
                 <div className="flex items-center justify-between pt-3 border-t border-border">
                     <div className="flex flex-col">
                         <span className="text-[10px] text-muted-foreground uppercase">Sensors</span>
-                        <span className={`text-xs font-bold ${customerCount > 0 ? "text-amber-600" : "text-zinc-500"}`}>
-                            {customerCount > 0 ? "HUMAN DETECTED" : "AREA CLEAR"}
+                        <span className={`text-xs font-bold ${customerCount > 0 ? "text-amber-600" : isCharging ? "text-amber-600" : "text-zinc-500"}`}>
+                            {customerCount > 0 ? "HUMAN DETECTED" : isCharging ? `CHARGING (${batteryLevel}%)` : isInteracting ? "INTERACTION IN PROGRESS" : "AREA CLEAR"}
                         </span>
                     </div>
                     <button
                         onClick={toggleCustomerSimulation}
-                        className="text-[10px] px-2 py-1 bg-secondary rounded border border-input hover:bg-accent transition-colors"
+                        disabled={isInteracting || isCharging}
+                        className={`text-[10px] px-2 py-1 rounded border border-input transition-colors
+                            ${isInteracting || isCharging
+                                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                                : "bg-secondary hover:bg-accent"}`}
                     >
-                        {customerCount > 0 ? "Clear Area" : "Simulate Customer"}
+                        {isCharging ? "Robot Charging..." : isInteracting ? "Controls Locked (30s)" : customerCount > 0 ? "Clear Area" : "Simulate Customer"}
                     </button>
                 </div>
             </div>
@@ -226,7 +230,10 @@ export default function RobotMap() {
                                 <span className="text-xs font-mono text-white/70 mt-1">CAM-04 [ROBOT_EYE_L]</span>
                             </div>
                             <button
-                                onClick={() => setIsLive(false)}
+                                onClick={() => {
+                                    triggerMisplacedItem();
+                                    setIsLive(false);
+                                }}
                                 className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all border border-white/10"
                             >
                                 <Maximize2 className="w-5 h-5 rotate-45" />
@@ -252,7 +259,8 @@ export default function RobotMap() {
                                 playsInline
                                 onEnded={() => {
                                     // Sequence: Detect Human -> Log Alert -> Redirect to Dashboard
-                                    triggerMisplacedItem(); // Keep alert as part of demo flow
+                                    triggerMissingItem(); // Changed from Misplaced to Missing per request
+                                    updateSecurityCheckTimestamp(); // Update "Last Check" on dashboard
                                     addCustomers(2); // Set count to 2
                                     setIsLive(false); // Close modal
                                     router.push("/mobile"); // Smooth transition to dashboard to see changes
@@ -287,7 +295,10 @@ export default function RobotMap() {
                             </div>
 
                             <button
-                                onClick={() => setIsLive(false)}
+                                onClick={() => {
+                                    triggerMisplacedItem();
+                                    setIsLive(false);
+                                }}
                                 className="px-6 py-3 bg-white text-black text-sm font-bold rounded-full uppercase tracking-wide hover:bg-gray-200 shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all"
                             >
                                 Terminate Feed

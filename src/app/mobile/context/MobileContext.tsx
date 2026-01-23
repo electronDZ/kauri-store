@@ -8,6 +8,8 @@ export interface Alert {
     itemName: string;
     detail: string;
     message: string;
+    actionLabel?: string; // Optional custom label for resolution button
+    isBatteryAlert?: boolean;
 }
 
 const INITIAL_ALERTS: Alert[] = [];
@@ -26,10 +28,20 @@ interface MobileContextType {
 
     // Audit Actions
     triggerMisplacedItem: () => void;
+    triggerMissingItem: () => void; // New
     reportMissingItemCandidate: () => void;
     finishAudit: () => void; // Manually or automatically finish tour
 
     securityStatus: "safe" | "warning";
+
+    // Security Check Timestamp
+    securityCheckLabel: string;
+    updateSecurityCheckTimestamp: () => void;
+
+    // Battery & Interaction
+    batteryLevel: number;
+    isCharging: boolean;
+    isInteracting: boolean;
 }
 
 const MobileContext = createContext<MobileContextType | undefined>(undefined);
@@ -45,6 +57,41 @@ export function MobileProvider({ children }: { children: ReactNode }) {
     const [customerCount, setCustomerCount] = useState(0);
     const [lastAuditTime, setLastAuditTime] = useState<number>(Date.now() - AUDIT_INTERVAL_MS - 1000); // Ready to audit initially
     const [auditLog, setAuditLog] = useState<string[]>([]); // Items potentially missing
+
+    // Battery & Interaction State
+    const [batteryLevel, setBatteryLevel] = useState(20);
+    const [isCharging, setIsCharging] = useState(false);
+    const [isInteracting, setIsInteracting] = useState(false);
+
+    // Security Check State
+    const [lastCheckTime, setLastCheckTime] = useState<number | null>(null);
+    const [securityCheckLabel, setSecurityCheckLabel] = useState("15m ago");
+
+    const updateSecurityCheckTimestamp = () => {
+        setLastCheckTime(Date.now());
+        setSecurityCheckLabel("just now");
+    };
+
+    // Effect to update label based on timer
+    useEffect(() => {
+        if (!lastCheckTime) return;
+
+        const updateLabel = () => {
+            const diff = Date.now() - lastCheckTime;
+            const minutes = Math.floor(diff / 60000);
+
+            if (minutes < 3) {
+                setSecurityCheckLabel("just now");
+            } else if (minutes === 3) {
+                setSecurityCheckLabel("three minutes");
+            } else {
+                setSecurityCheckLabel(`${minutes} minutes`);
+            }
+        };
+
+        const interval = setInterval(updateLabel, 1000); // Check every second to be precise enough
+        return () => clearInterval(interval);
+    }, [lastCheckTime]);
 
     // PRIORITY 1: HUMAN PRESENCE OVERRIDE
     useEffect(() => {
@@ -101,6 +148,44 @@ export function MobileProvider({ children }: { children: ReactNode }) {
         setAlerts(prev => [newAlert, ...prev]);
     };
 
+    const triggerMissingItem = () => {
+        const newAlert: Alert = {
+            id: Math.random().toString(36).substr(2, 9),
+            type: "missing",
+            itemName: "Cashmere Sweater",
+            detail: "Confirmed Missing from Rack B",
+            message: "Protocol B: Item confirmed missing."
+        };
+        setAlerts(prev => [newAlert, ...prev]);
+
+        // SIMULATION: Video end also consumes battery
+        setBatteryLevel(15);
+        triggerLowBatteryAlert();
+
+        // SIMULATION: Lock controls for 30s, then auto-dock/charge
+        setIsInteracting(true);
+        setTimeout(() => {
+            setIsInteracting(false);
+            setIsCharging(true);
+            setRobotStatus("assistant");
+        }, 30000);
+    };
+
+    const triggerLowBatteryAlert = () => {
+        const batteryAlert: Alert = {
+            id: "battery-low", // Fixed ID to identify it later
+            type: "warning" as any, // Using 'warning' or fallback to existing types if strictly typed. Let's stick to existing types or cast if needed. 
+            // Actually 'type' is "theft" | "misplaced" | "missing". Let's use "misplaced" as a generic "issue" or casting. 
+            // For now, I will use "misplaced" but visual will just rely on message.
+            itemName: "Robot Battery",
+            detail: "Critical Level (15%)",
+            message: "Robot battery is very low. Return to dock?",
+            isBatteryAlert: true,
+            actionLabel: "Return to Dock"
+        };
+        setAlerts(prev => [batteryAlert, ...prev]);
+    };
+
     // Protocol B: Missing Item (Delayed)
     const reportMissingItemCandidate = () => {
         console.log("[AUDIT] Possible missing item logged.");
@@ -131,6 +216,21 @@ export function MobileProvider({ children }: { children: ReactNode }) {
 
     const resolveAlert = (id: string) => {
         setAlerts((prev) => prev.filter((alert) => alert.id !== id));
+
+        // Special Handler for Battery Alert
+        if (id === "battery-low") {
+            setIsCharging(true);
+            setRobotStatus("assistant");
+            setIsInteracting(true);
+
+            // 30 Seconds Interaction Lock
+            setTimeout(() => {
+                setIsInteracting(false);
+                // Optional: Stop charging visual after 30s? Or keep it? 
+                // User said: "wait 30 second to robot finish interacting ... and then will have the option again"
+                // This implies the 'option' (patrol/simulation) comes back.
+            }, 30000);
+        }
     };
 
     const securityStatus = alerts.length > 0 ? "warning" : "safe";
@@ -146,6 +246,15 @@ export function MobileProvider({ children }: { children: ReactNode }) {
             reportMissingItemCandidate,
             finishAudit,
             securityStatus,
+            securityCheckLabel,
+            updateSecurityCheckTimestamp,
+            triggerMissingItem,
+
+            // Battery & Interaction
+            batteryLevel,
+            isCharging,
+            isInteracting,
+
             addCustomers: (n: number) => setCustomerCount(prev => prev + n)
         }}>
             {children}

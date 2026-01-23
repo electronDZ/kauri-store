@@ -48,6 +48,7 @@ export default function LiveAlerts() {
                             itemName={alert.itemName}
                             detail={alert.detail}
                             message={alert.message}
+                            actionLabel={alert.actionLabel}
                             onResolve={resolveAlert}
                         />
                     ))
