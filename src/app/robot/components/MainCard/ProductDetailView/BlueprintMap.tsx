@@ -325,13 +325,9 @@ export function BlueprintMap({
       <button
         type="button"
         onClick={onStartGuidance}
-        className="absolute bottom-6 right-6 z-10 flex min-h-[4.5rem] items-center justify-center gap-3 rounded-none border-2 border-kauri-green bg-kauri-green px-8 py-4 font-sans text-[1.4rem] font-semibold uppercase tracking-wide text-white transition-all hover:bg-kauri-green/90 active:scale-95"
+        className="absolute bottom-6 right-6 z-10 flex min-h-[6rem] items-center justify-center gap-3 rounded-none border-2 border-kauri-green bg-kauri-green px-8 py-4 font-sans text-[2rem] font-semibold uppercase tracking-wide text-white transition-all hover:bg-kauri-green/90 active:scale-95"
       >
-        {hasReachedProduct
-          ? "Here is your product"
-          : isGuiding
-            ? "Guiding..."
-            : "Take me to the product"}
+        Take me to the product
       </button>
 
       {/* Guidance Overlay */}
